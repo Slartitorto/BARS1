@@ -1,0 +1,270 @@
+// nRF24L01+ su ATTiny84
+// code for data TX vers. BARS1_03
+// include la sostituzione (bovina) del sprintf e l'utilizzo del ds18B20
+// Funziona, consuma 5 uA in sleeping - 8094 bytes
+// connect:
+// nrf24L01:  1 2 3  4 5 6 7
+// attiny84: 14 1 6 10 9 8 7
+
+
+// da sistemare:
+// 1) restart dopo l'interrupt per ripartire subito con il periodo corretto
+// 2) code_period da inserire nell'outBuffer
+// 3) data type solo 1 byte
+// 4) nodeID da prendere dal seriale del sensore
+// 5) data_type = 2 solo per inviare il code_period e/o l'intervallo in sec.
+
+
+#include <RF24.h>
+#include <Narcoleptic.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <EEPROM.h>
+
+#define tempPin 8      // sensor Vout connected to D8 (digitla) or A2 (analogic) (ATtiny pin 11)
+#define radioPower 0   // EN Voltage Regulator pin is connected to D0 (ATtiny pin 2)
+#define ledPin 1       // Led pin is connected to D1 (ATtiny pin 3)
+#define tempPower 2    // sensor Power pin is connected to D2 (ATtiny pin 5)
+#define ECP 1          // EEPROM register where store info for pause between trasmission
+
+RF24 radio(PA3,PA7);                   // attiny84: pins for nrf24l01 CSN,CE
+OneWire oneWire(tempPin);              // startup oneWire library
+DallasTemperature sensors(&oneWire);   // startup Dallas library
+
+// define variables
+int data_type = 1;    // 4 digit (0-9) data type = 1 for temp sensor
+int nodeID = 1234;    // nodeID
+int code_period;
+int IRQ_armed = 1;    // set variable for avoid double interrupt
+int period;
+int count = 0;
+
+void setup(void)
+{
+ sensors.begin();
+ analogReference(INTERNAL);       // set the aref to the internal 1.1V reference
+ pinMode(tempPower, OUTPUT);      // set power pin for sensor to output
+ digitalWrite(tempPower, HIGH);   // turn power sensor on
+ pinMode(ledPin, OUTPUT);         // set power pin for LED to output
+ pinMode(radioPower, OUTPUT);     // set power pin for EN Voltage regulator
+ led_blink(1,2000);            // to be remove:  2 seconds led+pause, start & reset signal
+
+ get_code_period();               // get code_period from EEPROM; if EEPROM code is not set, set "6" as 5 min. period
+
+// prepare interrupt control
+ pinMode(10,INPUT);       // abilita il D10=PCINT0 (il nostro interrupt) come input
+ digitalWrite(10,HIGH);   // attiva il pull-up per vedere quando va a massa
+ cli();
+ bitSet(GIMSK,PCIE0);     // Set interrupt on PCIE0 register (PCINT 0:7)
+ bitSet(PCMSK0,PCINT0);   // Set interrupt on PCINT0 (ATtiny84 D10 - pin 13)
+ sei();
+ delay(2000);             // wait 2 sec. for pause between period signal and first trasmission
+}
+
+void loop(void)
+{
+ int temptx;
+
+ digitalWrite(ledPin, HIGH);        // turn LED on
+
+ sensors.requestTemperatures();     // Send the command to get temperatures
+ delay(1000);                       // Allow 1 sec. for the sensor to be ready
+ digitalWrite(ledPin, HIGH);        // turn LED on
+ temptx=(sensors.getTempCByIndex(0)*100); // read sensor
+
+ long vcc=readVcc();
+ int period = get_period(code_period);
+
+ // Preparing Payload (32 bytes is maximum)
+ char outBuffer[32]= "";
+
+int i;
+int c;
+
+  c = data_type;
+  for (i = 3; i >= 0; --i)
+  {
+  int x;
+  x = c %10;
+  outBuffer[i] = '0' + x ;
+  c = (c - x) / 10;
+  }
+  outBuffer[4] = ':';
+
+  c = nodeID;
+  for (i = 8; i >= 5; --i)
+  {
+  int x;
+  x = c %10;
+  outBuffer[i] = '0' + x ;
+  c = (c - x) / 10;
+  }
+  outBuffer[9] = ':';
+
+  c = count;
+  for (i = 13; i >= 10; --i)
+  {
+  int x;
+  x = c %10;
+  outBuffer[i] = '0' + x ;
+  c = (c - x) / 10;
+  }
+  outBuffer[14] = ':';
+
+  c = temptx;
+  if (temptx < 0) { outBuffer[15] = '-'; c = c * -1;}
+  else { outBuffer[15] = '+';}
+  for (i = 19; i >= 16; --i)
+  {
+  int x;
+  x = c %10;
+  outBuffer[i] = '0' + x ;
+  c = (c - x) / 10;
+  }
+  outBuffer[20] = ':';
+
+  c = vcc;
+  for (i = 24; i >= 21; --i)
+  {
+  int x;
+  x = c %10;
+  outBuffer[i] = '0' + x ;
+  c = (c - x) / 10;
+  }
+  outBuffer[25] = ':';
+
+ // turn Voltage Regulator ON
+ digitalWrite(radioPower, HIGH);
+ delay(5);
+
+ // init radio for writing on channel 76
+ radio.begin();
+ radio.setPALevel(RF24_PA_MAX);
+ radio.setChannel(0x4c);
+ radio.setDataRate(RF24_250KBPS);
+ radio.openWritingPipe(0xF0F0F0F0E1LL);
+ radio.enableDynamicPayloads();
+ radio.powerUp();
+
+ // Transmit and go down.
+ delay(5);
+ radio.write(outBuffer, strlen(outBuffer));
+ radio.powerDown();
+
+ digitalWrite(radioPower, LOW);        // turn Voltage Regulator OFF
+ digitalWrite(ledPin, LOW);            // turn LED off
+
+ gotosleep(period);
+ // increase counter
+ count ++;
+ if (count == 10000) {
+   count = 0;
+   }
+ }
+
+ void gotosleep(int period) {
+   int timerSeconds;
+   int timerHalfminutes;
+
+   timerSeconds = period % 30;
+   timerHalfminutes = ((period - timerSeconds)/30);
+
+   if (timerHalfminutes > 0)
+     {
+       for(int i = 0; i < timerHalfminutes ; i++)
+        {
+         Narcoleptic.delay(30000);   // 30 sec. sleeping is max for Narcoleptic
+        }
+     }
+   if (timerSeconds > 0)
+     {
+     Narcoleptic.delay(timerSeconds*1000);  // delay the rest
+     }
+ }
+
+void led_blink(int times, int speed) {
+  // 50 = very fast - 250 = readable - 500 = slow
+  for (int i = 0; i < times; i++) {
+     digitalWrite(ledPin, HIGH);      // turn LED on
+     delay(speed);
+     digitalWrite(ledPin, LOW);       // turn LED off
+     delay(speed);
+  }
+}
+
+void get_code_period(void) {
+  code_period = EEPROM.read(ECP);
+  if (code_period < 1 || code_period > 9) {
+    led_blink(30,50);                // lampeggia un poco la prima volta
+    code_period = 6;                 // set 6 as default value = 5 m.
+    EEPROM.write(ECP,code_period);   // registra il valore di default
+    delay (5);
+    code_period = EEPROM.read(ECP);  // back read for complete storage
+  }
+  else{
+    led_blink(code_period,250);      // lampeggia il valore storato
+  }
+}
+
+int get_period(int code_period) {
+  int period;
+  if (code_period == 1)
+    period = 5;
+  else if (code_period == 2)
+    period = 15;
+  else if (code_period == 3)
+    period = 30;
+  else if (code_period == 4)
+    period = 60;
+  else if (code_period == 5)
+    period = 180;
+  else if (code_period == 6)
+    period = 300;
+  else if (code_period == 7)
+    period = 900;
+  else if (code_period == 8)
+    period = 1800;
+  else if (code_period == 9)
+    period = 3600;
+  return period;
+}
+
+ long readVcc() {
+   long result;
+   bitClear(PRR, PRADC); // power up the ADC
+   ADCSRA |= bit(ADEN);  // enable the ADC
+
+   // Read 1.1V reference against Vcc
+   ADMUX = _BV(MUX5) | _BV(MUX0);
+   delay(2); // Wait for Vref to settle
+   ADCSRA |= _BV(ADSC); // Convert
+   while (bit_is_set(ADCSRA,ADSC));
+   result = ADCL;
+   result |= ADCH<<8;
+   result = 1126400L / result; // Back-calculate Vcc in mV
+
+   ADCSRA &= ~ bit(ADEN); // disable the ADC
+   bitSet(PRR, PRADC);    // power down the ADC
+
+   return result;
+}
+
+ISR(PCINT0_vect)  // Interrupt Service Routine when PCIE0 interrupt
+// if interrupt (switch pressed - D10 down) increase code_period
+{
+  int val;
+   if (IRQ_armed == 0);
+   else if (digitalRead(10) == 0)        // solo se il contatto e' attivato
+  {
+    IRQ_armed = 0;
+    code_period++;
+    if (code_period == 10) {
+      code_period = 1;
+    }
+    EEPROM.write(ECP,code_period);
+    val = EEPROM.read(ECP);         // back read for complete storage
+    sei();
+    led_blink(val,250);
+    IRQ_armed = 1;
+  }
+}
