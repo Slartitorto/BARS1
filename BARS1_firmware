@@ -1,7 +1,7 @@
 // nRF24L01+ su ATTiny84
 // code for data TX vers. BARS1_04
 // include la sostituzione (bovina) del sprintf e l'utilizzo del ds18B20
-// Funziona, consuma 5 uA in sleeping - 8094 bytes
+// Funziona, consuma 5 uA in sleeping - 8174 bytes
 // connect:
 // nrf24L01:  1 2 3  4 5 6 7
 // attiny84: 14 1 6 10 9 8 7
@@ -9,10 +9,11 @@
 
 // da sistemare:
 // Done 1) restart dopo l'interrupt per ripartire subito con il periodo corretto
-// 2) period da inserire nell'outBuffer
-// 3) data type solo 1 byte
+// Done 2) period da inserire nell'outBuffer
+// 3) nodeID alfanumerico (almeno Hex) per avere maggiori combinazioni
+// 4) data type solo 1 byte
 // 4) nodeID da prendere dal seriale del sensore
-// 5) data_type = 2 solo per inviare il code_period e/o l'intervallo in sec.
+// 6) data_type = 2 solo per inviare il code_period e/o l'intervallo in sec.
 
 
 #include <RF24.h>
@@ -57,6 +58,7 @@ void setup(void)
  bitSet(GIMSK,PCIE0);     // Set interrupt on PCIE0 register (PCINT 0:7)
  bitSet(PCMSK0,PCINT0);   // Set interrupt on PCINT0 (ATtiny84 D10 - pin 13)
  sei();
+
  delay(2000);             // wait 2 sec. for pause between period signal and first trasmission
 }
 
@@ -130,6 +132,16 @@ int c;
   c = (c - x) / 10;
   }
   outBuffer[25] = ':';
+
+  c = period;
+  for (i = 29; i >= 26; --i)
+  {
+  int x;
+  x = c %10;
+  outBuffer[i] = '0' + x ;
+  c = (c - x) / 10;
+  }
+  outBuffer[30] = ':';
 
  // turn Voltage Regulator ON
  digitalWrite(radioPower, HIGH);
