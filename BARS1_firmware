@@ -1,5 +1,5 @@
 // nRF24L01+ su ATTiny84
-// code for data TX vers. BARS1_03
+// code for data TX vers. BARS1_04
 // include la sostituzione (bovina) del sprintf e l'utilizzo del ds18B20
 // Funziona, consuma 5 uA in sleeping - 8094 bytes
 // connect:
@@ -8,8 +8,8 @@
 
 
 // da sistemare:
-// 1) restart dopo l'interrupt per ripartire subito con il periodo corretto
-// 2) code_period da inserire nell'outBuffer
+// Done 1) restart dopo l'interrupt per ripartire subito con il periodo corretto
+// 2) period da inserire nell'outBuffer
 // 3) data type solo 1 byte
 // 4) nodeID da prendere dal seriale del sensore
 // 5) data_type = 2 solo per inviare il code_period e/o l'intervallo in sec.
@@ -47,8 +47,7 @@ void setup(void)
  digitalWrite(tempPower, HIGH);   // turn power sensor on
  pinMode(ledPin, OUTPUT);         // set power pin for LED to output
  pinMode(radioPower, OUTPUT);     // set power pin for EN Voltage regulator
- led_blink(1,2000);            // to be remove:  2 seconds led+pause, start & reset signal
-
+ delay(2000);
  get_code_period();               // get code_period from EEPROM; if EEPROM code is not set, set "6" as 5 min. period
 
 // prepare interrupt control
@@ -65,7 +64,6 @@ void loop(void)
 {
  int temptx;
 
- digitalWrite(ledPin, HIGH);        // turn LED on
 
  sensors.requestTemperatures();     // Send the command to get temperatures
  delay(1000);                       // Allow 1 sec. for the sensor to be ready
@@ -249,6 +247,9 @@ int get_period(int code_period) {
    return result;
 }
 
+void(* resetFunc) (void) = 0;//declare reset function at address 0
+
+
 ISR(PCINT0_vect)  // Interrupt Service Routine when PCIE0 interrupt
 // if interrupt (switch pressed - D10 down) increase code_period
 {
@@ -266,5 +267,8 @@ ISR(PCINT0_vect)  // Interrupt Service Routine when PCIE0 interrupt
     sei();
     led_blink(val,250);
     IRQ_armed = 1;
+    cli();
+    resetFunc();
+
   }
 }
