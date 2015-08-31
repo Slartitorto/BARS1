@@ -1,0 +1,64 @@
+@charset "utf-8";
+
+body {
+	font-family: avenir,arial,sans-serif;
+	font-size: 14px;
+	color: #000;
+	background-color: #ffffff;
+}
+table.gridtable {
+        font-family: avenir,arial,sans-serif;
+        color:#000000;
+        border-width: 0px;
+        border-color: #666666;
+        border-collapse: collapse;
+}
+table.gridtable th {
+        border-width: 0px;
+        text-align: center;
+        font-size:14;
+        padding: 8px;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #efefef;
+}
+table.gridtable td {
+        border-width: 0px;
+        padding: 8px;
+        font-size:13;
+        text-align: center;
+        border-style: solid;
+        border-color: #666666;
+        background-color: #ffffff;
+}
+h1 {
+	font-size: 36px;
+	color: #000000;
+	background-color: #ffffff;
+	text-align: left;
+	vertical-align: middle;
+	height: 50px;
+}
+h2 {
+        font-size: 16px;
+        color: #000000;
+        background-color: #ffffff;
+        text-align: left;
+        vertical-align: middle;
+        height: 24px;
+}
+.stileCampiInput {
+	font-size:13;
+}
+a:visited {
+	color: #003;
+	text-decoration: none;
+}
+a:hover {
+	color: #009;
+	text-decoration: underline;
+}
+a:active {
+	color: #003;
+	text-decoration: none;
+}
