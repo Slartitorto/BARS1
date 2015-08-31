@@ -1,0 +1,51 @@
+*Pick And Place List
+*Company=
+*Author=
+*eMail=
+*
+*Project=BARS1_1.65
+*Date=10:26:23
+*CreatedBy=Fritzing 0.9.0b.06.11.da4e
+*
+*
+*Coordinates in mm, always center of component
+*Origin 0/0=Lower left corner of PCB
+*Rotation in degree (0-360, math. pos.)
+*
+*No;Value;Package;X;Y;Rotation;Side;Name
+1;10µF;100 mil [THT, electrolytic];8.4788;-20.1243;180;Bottom;C1
+2;;;33.5612;-3.93188;0;Bottom;Via49
+3;;;8.7962;-10.2818;0;Bottom;Via34
+4;;eg2211;0.716434;-16.7268;0;Bottom;S1
+5;;1x04-smd;18.9563;3.69746;0;Bottom;+..S..Vc..-
+6;;;6.8912;-10.2818;0;Bottom;Via42
+7;2.2k;1206 [SMD];29.4712;-1.39184;0;Bottom;S2
+8;;THT;28.4813;-11.2343;0;Bottom;J1
+9;;THT;10.0663;-1.70929;90;Bottom;Q1
+10;;SOIC-14;19.1214;-9.01179;90;Top;U3 ATtiny84
+11;6.8k;1206 [SMD];8.19869;-4.56684;180;Top;R1
+12;;;1.81144;-8.37679;0;Bottom;Via47
+13;;;1.81144;-2.02665;0;Bottom;Via48
+14;;5 mm [THT];12.9237;-10.8608;180;Bottom;LED2 red
+15;;led-1206;20.0363;-20.5592;0;Bottom;LED3
+16;;sot23-5;9.0836;-7.73927;-90;Top;U1
+17;;THT;31.6563;-11.2343;0;Bottom;J2
+18;;;17.6862;-10.2818;0;Bottom;Via41
+19;;;25.6237;-6.4718;0;Bottom;Via37
+20;2.2k;1206 [SMD];13.5962;-5.20184;0;Bottom;R11
+21;;;19.9087;-12.8218;0;Bottom;Via40
+22;10µF;100 mil [THT, electrolytic];31.3388;-20.1243;180;Bottom;C3
+23;;;20.2262;-8.0593;0;Bottom;Via43
+24;;;19.9087;-10.2818;0;Bottom;Via44
+25;;5 mm [THT];12.9239;-15.9408;180;Bottom;LED1 gre
+26;2.2k;1206 [SMD];8.44139;-12.5043;0;Top;R2
+27;10µF;100 mil [THT, electrolytic];25.6238;-20.1243;180;Bottom;C2
+28;;;24.6712;-11.8693;0;Bottom;Via39
+29;150mA;sot23-5;19.939;-19.1743;90;Top;U2
+30;2.2k;1206 [SMD];19.9462;-17.9018;0;Bottom;R10
+31;;1206;23.5312;-15.0443;0;Top;C4
+32;2.2k;1206 [SMD];29.4712;-3.93184;0;Bottom;R12
+33;;usb-microb;2.60045;-5.20178;90;Bottom;X1
+34;;THT;14.1938;-20.4418;-90;Bottom;+  -
+35;;;0.541204;-6.4718;0;Bottom;Via50
+36;2.2k;1206 [SMD];8.44139;-15.3618;0;Top;R3
