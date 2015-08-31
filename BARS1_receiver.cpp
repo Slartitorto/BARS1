@@ -1,24 +1,26 @@
-// nRF24l01_receive.cpp
+// README
+
+// BARS1_receiver.cpp
 // nRF24L01+ su RaspberryPi
 // example code for data RX
 // connect:
 // nrf24L01:     1   2   3   4   5   6   7
 // RaspberryPi:  6   1   22  24  23  19  21
-// vers. 007  controllo soglie ed invio mail di allarme
+
 // before compile, do:
 // # sudo apt-get update
 // # sudo apt-get install mysql-client
 // # sudo apt-get install libmysqlclient-dev
 // then compile by:
-// # g++ -Ofast -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s -Wall -I../ -lrf24-bcm nRF24l01_BARS_listen.cpp -o nRF24l01_BARS_listen `mysql_config --cflags` `mysql_config --libs`
+// # g++ -Ofast -mfpu=vfp -mfloat-abi=hard -march=armv6zk -mtune=arm1176jzf-s -Wall -I../ -lrf24-bcm BARS1_receiver.cpp -o BARS1_receiver `mysql_config --cflags` `mysql_config --libs`
 // copy the binary in proper location:
-// # cp nRF24l01_BARS_listen /usr/local/bin
+// # cp BARS1_receiver /usr/local/bin
 // for start at boot, edit a proper init.d file using some other script as base:
-// # vi /etc/init.d/nRF24l01_BARS_listen
-// # chmod 755 /etc/init.d/nRF24l01_BARS_listen
-// # sudo update-rc.d nRF24l01_BARS_listen defaults
+// # vi /etc/init.d/BARS1_receiver
+// # chmod 755 /etc/init.d/BARS1_receiver
+// # sudo update-rc.d BARS1_receiver defaults
 // then start the binary:
-// # /etc/init.d/nRF24l01_BARS_listen start
+// # /etc/init.d/BARS1_receiver start
 // remember to insert the device in database; without it, segmentation fault
 
 
