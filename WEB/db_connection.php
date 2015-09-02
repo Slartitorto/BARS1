@@ -4,7 +4,7 @@
 $servername = "localhost";
 $username = "USER";
 $password = "PWD";
-$dbname = "sensors";    
+$dbname = "sensors";
 
 
 //      ACCESSO AL DATABASE
@@ -15,4 +15,5 @@ if ($conn->connect_error) {
 }
 
 define("NOMESITO", "Home Sensors");
+define("URLSITO", "http://bars.slartitorto.eu");
 ?>
