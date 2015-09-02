@@ -15,11 +15,11 @@
 	Username: ".$_POST["username"].",\n
 	Password: ".$_POST["password"].",\n\n\n
 	Url di conferma: ".URLSITO."/azioni.php?act=conferma&cod=".$codUtente."\n\n
-	In caso di problemi ti inviatiamo a contattarci direttamente.
+	In caso di problemi ti invitiamo a contattarci direttamente.
 	";
-		
+
 	mail($_POST["email"], "Home Sensors - Conferma registrazione", $Messaggio, "From: registrazione@slatitorto.eu");
-	header('Location: index.php?act=RegistrazioneOn');			
+	header('Location: index.php?act=RegistrazioneOn');
 		}
 ?>
 <head>
@@ -40,7 +40,7 @@
 			if (c==1)
 				{
 					if (document.formRegistrazione.password.value	==	document.formRegistrazione.password2.value)
-						{			
+						{
 						}
 					else
 						{
