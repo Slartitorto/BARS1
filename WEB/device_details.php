@@ -1,5 +1,6 @@
 <?php
 
+include "db_connection.php";
 
 	if(isset($_COOKIE['LOGIN']))
 		{
@@ -10,12 +11,6 @@
 			$COD_UTENTE =	0;
 			header("Location: index.php");
 		}
-
-
-// $Sql	= "SELECT `codUtente`, `username` FROM `utenti` WHERE `codUtente`='".$COD_UTENTE."';";
-// $result	= $conn_query($Sql);
-// $Dati 	= mysql_fetch_array($result);
-
 ?>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -26,8 +21,6 @@
 <body>
 
 <?php
-include "db_connection.php";
-
 $serial=($_GET["serial"]);
 
 // SELECT for data to graph
@@ -54,7 +47,7 @@ print  "<head><title>Sensor details</title>
 	<script src=\"scripts/jquery.min.js\"></script>
 	<script src=\"scripts/highcharts.js\"></script>
 	<script>
-	$(function () { 
+	$(function () {
 		Highcharts.setOptions({
         		global: {
             			timezoneOffset: -60
