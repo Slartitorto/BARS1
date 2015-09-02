@@ -1,13 +1,12 @@
 <?php
-	include "connessione.php";
+	include "db_connection.php";
 
 	if(@$_POST["invio"])
 	{
 	$codUtente	=	md5($_POST["email"]);
 	$codPassword	=	md5($_POST["password"]);
 	$Sql		=	"INSERT INTO `utenti` SET `username`='".@$_POST["username"]."', `codUtente`='".$codUtente."', `password`='".$codPassword."', `email`='".@$_POST["email"]."';";
-	$Query		=	mysql_query($Sql);
-
+	$result		=	$conn->query($Sql);
 	$Messaggio	=	"
 	Buongiorno ".$_POST["username"].",\n
 	questa e-mail ti giunge dall'area riservata del sito ".NOMESITO.".\n\n
