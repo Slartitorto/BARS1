@@ -12,8 +12,8 @@
 	questa e-mail ti giunge dall'area riservata del sito ".NOMESITO.".\n\n
 	Di seguito trovi l'url per procedere all'attivazione del tuo account.\n\n
 	Dati di accesso\n
-	Username: ".$_POST["username"].",\n
-	Password: ".$_POST["password"].",\n\n\n
+	Username: ".$_POST["username"]."\n
+	Password: ".$_POST["password"]."\n\n\n
 	Url di conferma: ".URLSITO."/azioni.php?act=conferma&cod=".$codUtente."\n\n
 	In caso di problemi ti invitiamo a contattarci direttamente.
 	";
