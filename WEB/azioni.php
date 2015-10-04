@@ -11,7 +11,7 @@ function PasswordRandom()
 	{
 		$PASSWORD = "";
 		mt_srand();
-		
+
 		for($i=0; $i<6; $i++)
 			{
 				$PASSWORD .= "".mt_rand(0, 9)."";
@@ -34,11 +34,11 @@ if(@$_GET["act"]	==	"recuperaPassword")
 			Buongiorno ".$Dati["username"].",\n
 			questa e-mail ti giunge dall'area riservata del sito ".NOMESITO.".\n\n
 			Di seguito trovi il dati di accesso all'area riservata del sito.\n\n
-			Username: ".$Dati["username"].",\n
-			Password: ".$Password.",\n\n\n
+			Username: ".$Dati["username"]."\n
+			Password: ".$Password."\n\n\n
 			In caso di problemi ti invitiamo a contattarci direttamente.
 			";
-					
+
 			mail($_POST["email"], "NOMESITO - Recupero Password", $Messaggio);
 
 			header('Location: index.php?act=RecuperoOn');
