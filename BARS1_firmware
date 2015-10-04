@@ -1,20 +1,6 @@
-// nRF24L01+ su ATTiny84
-// code for data TX vers. BARS1_04
-// include la sostituzione (bovina) del sprintf e l'utilizzo del ds18B20
-// Funziona, consuma 5 uA in sleeping - 8174 bytes
-// connect:
-// nrf24L01:  1 2 3  4 5 6 7
-// attiny84: 14 1 6 10 9 8 7
-
-
-// da sistemare:
-// Done 1) restart dopo l'interrupt per ripartire subito con il periodo corretto
-// Done 2) period da inserire nell'outBuffer
-// 3) nodeID alfanumerico (almeno Hex) per avere maggiori combinazioni
-// 4) data type solo 1 byte
-// 4) nodeID da prendere dal seriale del sensore
-// 6) data_type = 2 solo per inviare il code_period e/o l'intervallo in sec.
-
+// nRF24L01+ & ATTiny84 & DS18B20
+// code for HW BARS1 rev. 1.65
+// It works, use 5 uA in sleeping - 8128 bytes
 
 #include <RF24.h>
 #include <Narcoleptic.h>
@@ -32,9 +18,12 @@ RF24 radio(PA3,PA7);                   // attiny84: pins for nrf24l01 CSN,CE
 OneWire oneWire(tempPin);              // startup oneWire library
 DallasTemperature sensors(&oneWire);   // startup Dallas library
 
-// define variables
-int data_type = 1;    // 4 digit (0-9) data type = 1 for temp sensor
-int nodeID = 1234;    // nodeID
+// define user variables
+// change and remember to add nodeID as device serial number in DB
+int nodeID = 1234;    // nodeID 4 digit (0-9)
+int data_type = 1;    // 1 digit (0-9) data type = 1 for temp sensor
+
+// define global software variables
 int code_period;
 int IRQ_armed = 1;    // set variable for avoid double interrupt
 int period;
@@ -52,24 +41,23 @@ void setup(void)
  get_code_period();               // get code_period from EEPROM; if EEPROM code is not set, set "6" as 5 min. period
 
 // prepare interrupt control
- pinMode(10,INPUT);       // abilita il D10=PCINT0 (il nostro interrupt) come input
- digitalWrite(10,HIGH);   // attiva il pull-up per vedere quando va a massa
+ pinMode(10,INPUT);               // enable D10=PCINT0 (for interrupt) as input
+ digitalWrite(10,HIGH);           // enable pull-up for interrupt when goes down
  cli();
- bitSet(GIMSK,PCIE0);     // Set interrupt on PCIE0 register (PCINT 0:7)
- bitSet(PCMSK0,PCINT0);   // Set interrupt on PCINT0 (ATtiny84 D10 - pin 13)
+ bitSet(GIMSK,PCIE0);             // Set interrupt on PCIE0 register (PCINT 0:7)
+ bitSet(PCMSK0,PCINT0);           // Set interrupt on PCINT0 (ATtiny84 D10 - pin 13)
  sei();
 
- delay(2000);             // wait 2 sec. for pause between period signal and first trasmission
+ delay(2000);                     // wait 2 sec. for pause between period signal and first trasmission
 }
 
 void loop(void)
 {
  int temptx;
 
-
- sensors.requestTemperatures();     // Send the command to get temperatures
- delay(1000);                       // Allow 1 sec. for the sensor to be ready
- digitalWrite(ledPin, HIGH);        // turn LED on
+ sensors.requestTemperatures();           // Send the command to get temperatures
+ delay(1000);                             // Allow 1 sec. for the sensor to be ready
+ digitalWrite(ledPin, HIGH);              // turn LED on
  temptx=(sensors.getTempCByIndex(0)*100); // read sensor
 
  long vcc=readVcc();
@@ -81,67 +69,60 @@ void loop(void)
 int i;
 int c;
 
-  c = data_type;
-  for (i = 3; i >= 0; --i)
-  {
-  int x;
-  x = c %10;
-  outBuffer[i] = '0' + x ;
-  c = (c - x) / 10;
-  }
-  outBuffer[4] = ':';
+  outBuffer[0] = '0' + data_type;
+  outBuffer[1] = ':';
 
   c = nodeID;
-  for (i = 8; i >= 5; --i)
+  for (i = 5; i >= 2; --i)
   {
   int x;
   x = c %10;
   outBuffer[i] = '0' + x ;
   c = (c - x) / 10;
   }
-  outBuffer[9] = ':';
+  outBuffer[6] = ':';
 
   c = count;
-  for (i = 13; i >= 10; --i)
+  for (i = 10; i >= 7; --i)
   {
   int x;
   x = c %10;
   outBuffer[i] = '0' + x ;
   c = (c - x) / 10;
   }
-  outBuffer[14] = ':';
+  outBuffer[11] = ':';
 
   c = temptx;
-  if (temptx < 0) { outBuffer[15] = '-'; c = c * -1;}
-  else { outBuffer[15] = '+';}
-  for (i = 19; i >= 16; --i)
+  if (temptx < 0) { outBuffer[12] = '-'; c = c * -1;}
+  else { outBuffer[12] = '+';}
+  for (i = 16; i >= 13; --i)
   {
   int x;
   x = c %10;
   outBuffer[i] = '0' + x ;
   c = (c - x) / 10;
   }
-  outBuffer[20] = ':';
+  outBuffer[17] = ':';
 
   c = vcc;
-  for (i = 24; i >= 21; --i)
+  for (i = 21; i >= 18; --i)
   {
   int x;
   x = c %10;
   outBuffer[i] = '0' + x ;
   c = (c - x) / 10;
   }
-  outBuffer[25] = ':';
+  outBuffer[22] = ':';
 
   c = period;
-  for (i = 29; i >= 26; --i)
+  for (i = 26; i >= 23; --i)
   {
   int x;
   x = c %10;
   outBuffer[i] = '0' + x ;
   c = (c - x) / 10;
   }
-  outBuffer[30] = ':';
+  outBuffer[27] = ':';
 
  // turn Voltage Regulator ON
  digitalWrite(radioPower, HIGH);
@@ -165,6 +146,7 @@ int c;
  digitalWrite(ledPin, LOW);            // turn LED off
 
  gotosleep(period);
+
  // increase counter
  count ++;
  if (count == 10000) {
@@ -172,7 +154,10 @@ int c;
    }
  }
 
- void gotosleep(int period) {
+// END OF MAIN LOOP
+
+
+void gotosleep(int period) {
    int timerSeconds;
    int timerHalfminutes;
 
@@ -239,7 +224,7 @@ int get_period(int code_period) {
   return period;
 }
 
- long readVcc() {
+long readVcc() {
    long result;
    bitClear(PRR, PRADC); // power up the ADC
    ADCSRA |= bit(ADEN);  // enable the ADC
@@ -259,7 +244,7 @@ int get_period(int code_period) {
    return result;
 }
 
-void(* resetFunc) (void) = 0;//declare reset function at address 0
+void(* resetFunc) (void) = 0;  //declare reset function at address 0
 
 
 ISR(PCINT0_vect)  // Interrupt Service Routine when PCIE0 interrupt
@@ -267,20 +252,17 @@ ISR(PCINT0_vect)  // Interrupt Service Routine when PCIE0 interrupt
 {
   int val;
    if (IRQ_armed == 0);
-   else if (digitalRead(10) == 0)        // solo se il contatto e' attivato
-  {
-    IRQ_armed = 0;
-    code_period++;
-    if (code_period == 10) {
-      code_period = 1;
-    }
-    EEPROM.write(ECP,code_period);
-    val = EEPROM.read(ECP);         // back read for complete storage
-    sei();
-    led_blink(val,250);
-    IRQ_armed = 1;
-    cli();
-    resetFunc();
-
-  }
+   else if (digitalRead(10) == 0)    // only if switch still pressed
+   {
+     IRQ_armed = 0;
+     code_period++;
+     if (code_period == 10) code_period = 1;
+     EEPROM.write(ECP,code_period);
+     val = EEPROM.read(ECP);         // back read for complete storage
+     sei();
+     led_blink(val,250);             // show new value
+     IRQ_armed = 1;
+     cli();
+     resetFunc();                    // reset all
+   }
 }
