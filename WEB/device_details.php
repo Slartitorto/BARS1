@@ -11,6 +11,12 @@ include "db_connection.php";
 			$COD_UTENTE =	0;
 			header("Location: index.php");
 		}
+
+
+// $Sql	= "SELECT `codUtente`, `username` FROM `utenti` WHERE `codUtente`='".$COD_UTENTE."';";
+// $result	= $conn_query($Sql);
+// $Dati 	= mysql_fetch_array($result);
+
 ?>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -21,10 +27,22 @@ include "db_connection.php";
 <body>
 
 <?php
+
 $serial=($_GET["serial"]);
+$last=($_GET["last"]);
+if ( $last == 2)
+	{
+	$next_last = 7;
+	$string_last = "ultima settimana";
+	}
+else if ( $last == 7)
+	{
+	$next_last = 30;
+	$string_last = "ultimo mese";
+	}
 
 // SELECT for data to graph
-$sql = "SELECT unix_timestamp(timestamp) as timestamp, data FROM rec_data where serial = '$serial' and timestamp > now()-2000000 order by timestamp";
+$sql = "SELECT unix_timestamp(timestamp) as timestamp, data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
 $result = $conn->query($sql);
 while ($row = $result->fetch_array()) {
 $timestamp = $row['timestamp'];
@@ -112,7 +130,7 @@ print			"]
 	<TD align=\"left\" width=\"90%\">
 	<A href=\"javascript:navigator_Go('index.php');\"><img src=\"icone/left37.png\" width=\"35\"></A></TD>
 	<TD align=\"right\">
-	<A href=\"javascript:navigator_Go('device_details.php?serial=$serial');\"><img src=\"icone/refresh57.png\" width=\"30\">
+	<A href=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$last');\"><img src=\"icone/refresh57.png\" width=\"30\">
 	</TD>
 	</TR></TABLE>
 	<BR><CENTER>
@@ -179,6 +197,7 @@ print "
 	</table><br><br><br>
 	<div id=\"container1\" style=\"width:100%; height:400px;\"></div>
 ";
+echo "<A href=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$next_last');\">" . $string_last . "</a>";
 } else {
     echo "0 results";
 }
