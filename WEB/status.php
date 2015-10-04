@@ -60,7 +60,7 @@ for($i=0;$i<$count;$i++) {
         	$last_data[$i]=$row["data"];
         	$sec_delay[$i]=$row["sec_delay"];
         	$battery[$i]=$row["battery"];
-	}        
+	}
 }
 for($i=0;$i<$count;$i++) {
 
@@ -87,7 +87,7 @@ for($i=0;$i<$count;$i++) {
 	else if ($sec_delay[$i] > 1000 or $link_qlt[$i] < 80) {
                 $warn[$i] = "link";
         }
-	else if ($last_data[$i] < $min_ok[$i] or $last_data[$i] > $max_ok[$i]) { 
+	else if ($last_data[$i] < $min_ok[$i] or $last_data[$i] > $max_ok[$i]) {
 		$warn[$i] = "red";
         }
 	else {
@@ -99,7 +99,7 @@ print "<table class=\"gridtable\"><tr><th>Termometro</th><th>Posizione</th><th>T
 	for($i=0;$i<$count;$i++) {
 	echo "<TR>";
 	echo "<TD><A HREF=\"javascript:navigator_Go('device_details.php?serial=";
-        echo  $serial[$i] . "');\">" . $device_name[$i]. "</A></TD><TD>" . $position[$i] . "</TD>";
+        echo  $serial[$i] . "&last=2');\">" . $device_name[$i]. "</A></TD><TD>" . $position[$i] . "</TD>";
         echo "<TD>" . $last_data[$i] . "</TD>";
 	echo "<TD><img src=\"icone/" . $warn[$i] . "_signal.png\" width=\"25\"></TD>";
 	}
