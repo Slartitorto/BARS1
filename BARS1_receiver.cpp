@@ -113,8 +113,8 @@ for (m=0; z[m]; m++) {
 		}
 	}
 
-// *** OK if 6 separators
-if (separator_count == 6) {
+// *** OK if 5 or 6 separators (BARS0 or BARS1 hardware)
+if (separator_count == 6 || separator_count == 5) {
 
 int data_type = 0;
 char * serial;
@@ -130,11 +130,13 @@ serial = strtok (NULL, ":");
 counter = atoi(strtok (NULL, ":"));
 data = atof(strtok (NULL, ":")) / 100;
 battery = atof(strtok (NULL, ":")) / 1000;
-period = atoi(strtok (NULL, ":"));
+if (separator_count == 6)
+	{
+		period = atoi(strtok (NULL, ":"));
+	} else period = 300;
 
 // *** Insert data into DB
 char query[256];
-printf("INSERT INTO rec_data (data_type,serial,counter,data,battery,period) VALUES (%04d,'%s',%04d,%.2f,%.3f,%04d)\n", data_type, serial, counter, data, battery,period);
 sprintf(query, "INSERT INTO rec_data (data_type,serial,counter,data,battery,period) VALUES (%04d,'%s',%04d,%.2f,%.3f,%04d)", data_type, serial, counter, data, battery,period);
 mysql_query(&mysql_conn,query);
 
