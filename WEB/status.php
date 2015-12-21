@@ -35,7 +35,21 @@
 
 include "db_connection.php";
 
-$query = "SELECT serial, device_name, position, batt_type, min_ok, max_ok FROM devices";
+$query = "SELECT `idUtente` FROM `utenti` WHERE `codUtente`='$COD_UTENTE'";
+$result = $conn->query($query);
+while($row = $result->fetch_assoc()) {
+	$idUtente = $row["idUtente"];
+}
+$query = "SELECT `tenant0`,`tenant1`,`tenant2`,`tenant3` FROM `tenants` WHERE `idUtente`= '$idUtente'";
+$result = $conn->query($query);
+while($row = $result->fetch_assoc()) {
+        $tenant0 = $row["tenant0"];
+        $tenant1 = $row["tenant1"];
+        $tenant2 = $row["tenant2"];
+        $tenant3 = $row["tenant3"];
+}
+
+$query = "SELECT serial, device_name, position, batt_type, min_ok, max_ok FROM devices where tenant in ($tenant0,$tenant1,$tenant2,$tenant3)";
 $result = $conn->query($query);
 $x=0;
 while($row = $result->fetch_assoc()) {
@@ -96,8 +110,8 @@ print "<table class=\"gridtable\"><tr><th>Termometro</th><th>Posizione</th><th>T
 	for($i=0;$i<$count;$i++) {
 	echo "<TR>";
 	echo "<TD><A HREF=\"javascript:navigator_Go('device_details.php?serial=";
-  echo  $serial[$i] . "&last=2');\">" . $device_name[$i]. "</A></TD><TD>" . $position[$i] . "</TD>";
-  echo "<TD>" . $last_data[$i] . "</TD>";
+        echo  $serial[$i] . "&last=2');\">" . $device_name[$i]. "</A></TD><TD>" . $position[$i] . "</TD>";
+        echo "<TD>" . $last_data[$i] . "</TD>";
 	echo "<TD><img src=\"icone/" . $warn[$i] . "_signal.png\" width=\"25\"></TD>";
 	}
 	echo "</TR>";
