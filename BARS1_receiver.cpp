@@ -114,7 +114,7 @@ for (m=0; z[m]; m++) {
 	}
 
 // *** OK if 5 or 6 separators (BARS0 or BARS1 hardware)
-if (separator_count == 6 || separator_count == 5) {
+if (separator_count == 5 || separator_count ==6) {
 
 int data_type = 0;
 char * serial;
@@ -156,7 +156,7 @@ char* position = row[5];
 char* tenant = row[6];
 
 // *** Get email address for alarm sending
-sprintf(query, "select email,email2 from utenti where idUtente = '%s'", tenant);
+sprintf(query, "select email,email2 from tenantEmail where tenant = '%s'", tenant);
 mysql_query(&mysql_conn,query);
 
 MYSQL_RES *mail_result = mysql_store_result(&mysql_conn);
