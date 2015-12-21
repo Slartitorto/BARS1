@@ -47,7 +47,7 @@ if(!isset($_POST['armed']))
 else
 { $armed=1; }
 
-if ((preg_match("/^[a-zA-Z0-9_]+$/", $device_name)) and (preg_match("/^[a-zA-Z0-9_]+$/", $position)) and (preg_match("/^-?[0-9]{1,3}+$/", $min_ok)) and (preg_match("/^-?[0-9]{1,3}+$/", $max_ok)))
+if ((preg_match("/^[a-zA-Z0-9_ ]+$/", $device_name)) and (preg_match("/^[a-zA-Z0-9_ ]+$/", $position)) and (preg_match("/^-?[0-9]{1,3}+$/", $min_ok)) and (preg_match("/^-?[0-9]{1,3}+$/", $max_ok)))
 {
 $sql = "UPDATE devices set device_name='$device_name', position='$position', min_ok='$min_ok', max_ok='$max_ok', armed='$armed' where serial='$serial'";
 $result = $conn->query($sql);
