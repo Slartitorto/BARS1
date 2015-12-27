@@ -35,18 +35,14 @@
 
 include "db_connection.php";
 
-$query = "SELECT `idUtente` FROM `utenti` WHERE `codUtente`='$COD_UTENTE'";
+$query = "SELECT idUtente,t0,t1,t2,t3 FROM utenti WHERE codUtente='$COD_UTENTE'";
 $result = $conn->query($query);
 while($row = $result->fetch_assoc()) {
 	$idUtente = $row["idUtente"];
-}
-$query = "SELECT `tenant0`,`tenant1`,`tenant2`,`tenant3` FROM `tenants` WHERE `idUtente`= '$idUtente'";
-$result = $conn->query($query);
-while($row = $result->fetch_assoc()) {
-        $tenant0 = $row["tenant0"];
-        $tenant1 = $row["tenant1"];
-        $tenant2 = $row["tenant2"];
-        $tenant3 = $row["tenant3"];
+	$tenant0 = $row["t0"];
+  $tenant1 = $row["t1"];
+  $tenant2 = $row["t2"];
+  $tenant3 = $row["t3"];
 }
 
 $query = "SELECT serial, device_name, position, batt_type, min_ok, max_ok FROM devices where tenant in ($tenant0,$tenant1,$tenant2,$tenant3)";
@@ -64,34 +60,26 @@ while($row = $result->fetch_assoc()) {
 
 $count=count($serial);
 for($i=0;$i<$count;$i++) {
-
-	$query = "select data, battery, timestampdiff(second,timestamp,now()) as sec_delay from rec_data where serial = '$serial[$i]' order by timestamp desc limit 1";
+	$query = "select data, counter, battery, timestampdiff(second,timestamp,now()) as sec_delay from rec_data where serial = '$serial[$i]' order by timestamp desc limit 1";
 	$result = $conn->query($query);
 	while($row = $result->fetch_assoc()) {
-        	$last_data[$i]=$row["data"];
-        	$sec_delay[$i]=$row["sec_delay"];
-        	$battery[$i]=$row["battery"];
+    $last_data[$i]=$row["data"];
+    $sec_delay[$i]=$row["sec_delay"];
+    $battery[$i]=$row["battery"];
+	  $link_qlt0[$i]=$row["counter"];
 	}
 }
 for($i=0;$i<$count;$i++) {
-
-// SELECT last counter
-$query = "select counter from rec_data where serial = '$serial[$i]' order by timestamp desc limit 1";
-$result = $conn->query($query);
-while($row = $result->fetch_assoc()) {
-$link_qlt0=$row["counter"];
-}
   // SELECT last counter -100
 $query = "select counter from rec_data where serial = '$serial[$i]' order by timestamp desc limit 100,1";
 $result = $conn->query($query);
 while($row = $result->fetch_assoc()) {
 $link_qlt1=$row["counter"];
         }
-$link_qlt[$i] = intval(10000/($link_qlt0 - $link_qlt1));
+$link_qlt[$i] = intval(10000/($link_qlt0[$i] - $link_qlt1));
 }
 
 for($i=0;$i<$count;$i++) {
-
         if (($batt_type[$i] == "litio" and $battery[$i] < 2.7) or ($batt_type[$i] == "nimh" and $battery[$i] < 3.2)) {
                 $warn[$i] = "battery_low";
         }
