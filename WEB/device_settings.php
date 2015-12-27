@@ -62,9 +62,17 @@ $armed="";
 }
 // END self_reload
 
+$query = "SELECT idUtente,t0,t1,t2,t3 FROM utenti WHERE codUtente='$COD_UTENTE'";
+$result = $conn->query($query);
+while($row = $result->fetch_assoc()) {
+        $idUtente = $row["idUtente"];
+        $tenant0 = $row["t0"];
+        $tenant1 = $row["t1"];
+        $tenant2 = $row["t2"];
+        $tenant3 = $row["t3"];
+}
 
-
-$sql = "SELECT serial, device_name, position, min_ok, max_ok, armed FROM devices order by serial";
+$sql = "SELECT serial, device_name, position, min_ok, max_ok, armed FROM devices where tenant in ($tenant0,$tenant1,$tenant2,$tenant3) order by serial";
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
 $x=0;
