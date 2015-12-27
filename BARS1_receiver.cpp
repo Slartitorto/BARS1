@@ -23,7 +23,6 @@
 // # /etc/init.d/BARS1_receiver start
 // remember to insert the device in database; without it, segmentation fault
 
-
 #include <cstdlib>
 #include <iostream>
 #include <RF24/RF24.h>
@@ -138,6 +137,7 @@ if (separator_count == 6)
 // *** Insert data into DB
 char query[256];
 sprintf(query, "INSERT INTO rec_data (data_type,serial,counter,data,battery,period) VALUES (%04d,'%s',%04d,%.2f,%.3f,%04d)", data_type, serial, counter, data, battery,period);
+
 mysql_query(&mysql_conn,query);
 
 // *** Get useful data from DB
@@ -156,7 +156,7 @@ char* position = row[5];
 char* tenant = row[6];
 
 // *** Get email address for alarm sending
-sprintf(query, "select email,email2 from tenantEmail where tenant = '%s'", tenant);
+sprintf(query, "select email from utenti where t0 = '%s' or t1 = '%s' or t2 = '%s' or t3 = '%s'", tenant, tenant, tenant, tenant);
 mysql_query(&mysql_conn,query);
 
 MYSQL_RES *mail_result = mysql_store_result(&mysql_conn);
