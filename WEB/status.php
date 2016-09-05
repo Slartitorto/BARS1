@@ -52,7 +52,7 @@ else { $COD_UTENTE =	0; header("Location: index.php");}
 
       $count=count($serial);
       for($i=0;$i<$count;$i++) {
-        $query = "select data, counter, battery, timestampdiff(second,timestamp,now()) as sec_delay from rec_data where serial = '$serial[$i]' order by timestamp desc limit 1";
+        $query = "select data, counter, battery, timestampdiff(second,timestamp,now()) as sec_delay from last_rec_data where serial = '$serial[$i]' order by timestamp desc limit 1";
         $result = $conn->query($query);
         while($row = $result->fetch_assoc()) {
           $last_data[$i]=$row["data"];

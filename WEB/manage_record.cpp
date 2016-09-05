@@ -31,7 +31,7 @@ int main(int argc, char **argv)
   mysql_init(&mysql_conn);
   mysql_real_connect(&mysql_conn, DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME, 0, NULL, 0);
 
-  char key[] = "73843932856389593857692387659387";
+  char key[] = "73242463928761275193080193876737";
   char ReceivedPaiload[32];
   int m;
   for (m=0; m<32; m++) {ReceivedPaiload[m] = 0; }
@@ -61,7 +61,15 @@ int main(int argc, char **argv)
     data = atof(strtok (NULL, ":")) / 100;
     battery = atof(strtok (NULL, ":")) / 1000;
     if (separator_count == 6) { period = atoi(strtok (NULL, ":")); } else period = 300;
+
     char query[256];
+
+    sprintf(query, "DELETE from last_rec_data where serial = '%s'", serial);
+    mysql_query(&mysql_conn,query);
+
+    sprintf(query, "INSERT INTO last_rec_data (data_type,serial,counter,data,battery,period) VALUES (%04d,'%s',%04d,%.2f,%.3f,%04d)", data_type, serial, counter, data, battery,period);
+    mysql_query(&mysql_conn,query);
+
     sprintf(query, "INSERT INTO rec_data (data_type,serial,counter,data,battery,period) VALUES (%04d,'%s',%04d,%.2f,%.3f,%04d)", data_type, serial, counter, data, battery,period);
     mysql_query(&mysql_conn,query);
 
