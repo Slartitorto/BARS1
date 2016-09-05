@@ -52,25 +52,20 @@ else { $COD_UTENTE =	0; header("Location: index.php");}
 
       $count=count($serial);
       for($i=0;$i<$count;$i++) {
-        $query = "select data, counter, battery, timestampdiff(second,timestamp,now()) as sec_delay from last_rec_data where serial = '$serial[$i]' order by timestamp desc limit 1";
+        $query = "select data, counter, battery, period, timestampdiff(second,timestamp,now()) as sec_delay from last_rec_data where serial = '$serial[$i]' order by timestamp desc limit 1";
         $result = $conn->query($query);
         while($row = $result->fetch_assoc()) {
           $last_data[$i]=$row["data"];
           $sec_delay[$i]=$row["sec_delay"];
           $battery[$i]=$row["battery"];
+          $period[$i]=$row["period"];
           $link_qlt0[$i]=$row["counter"];
         }
-        // SELECT last counter -100
-        $query = "select counter from rec_data where serial = '$serial[$i]' order by timestamp desc limit 100,1";
-        $result = $conn->query($query);
-        while($row = $result->fetch_assoc()) {
-          $link_qlt1=$row["counter"];
-        }
-        $link_qlt[$i] = intval(10000/($link_qlt0[$i] - $link_qlt1));
+
         if (($batt_type[$i] == "litio" and $battery[$i] < 2.7) or ($batt_type[$i] == "nimh" and $battery[$i] < 3.2)) {
           $warn[$i] = "battery_low";
         }
-        else if ($sec_delay[$i] > 1000 or $link_qlt[$i] < 80) {
+        else if ($sec_delay[$i] > 5 * $period[$i]) {
           $warn[$i] = "link";
         }
         else if ($last_data[$i] < $min_ok[$i] or $last_data[$i] > $max_ok[$i]) {
