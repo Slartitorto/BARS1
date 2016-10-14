@@ -1,5 +1,18 @@
 // Funziona tutto
 
+ // * nRF24L01+  ESP8266
+ // * VCC        VCC
+ // * CE         GPIO4
+ // * CSN/CS     GPIO15
+ // * SCK        GPIO14
+ // * MISO       GPIO12
+ // * MOSI       GPIO13
+ // * GND        GND
+
+
+
+
+
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
