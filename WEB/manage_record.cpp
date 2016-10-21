@@ -8,7 +8,8 @@
 // if(isset($_GET['data']))
 // {
 // $data=$_GET['data'];
-// system("./manage_record $data");
+// $router=$_GET['router'];
+// system("./manage_record $data $router");
 // }
 // ?>
 
@@ -24,19 +25,22 @@
 
 int main(int argc, char **argv)
 {
-  if (argc != 2) return(0);
+  if (argc != 3) return(0);
 
   MYSQL mysql_conn;
   using namespace std;
   mysql_init(&mysql_conn);
   mysql_real_connect(&mysql_conn, DATABASE_HOST, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_NAME, 0, NULL, 0);
 
-  char key[] = "73242463928761275193080193876737";
+  char key[] = "47326942698264982649826492764966";
+
   char ReceivedPaiload[32];
   int m;
   for (m=0; m<32; m++) {ReceivedPaiload[m] = 0; }
   char ReceivedPaiload_crypted[32];
+  char router[32];
   sprintf(ReceivedPaiload_crypted,argv[1]);
+  sprintf(router,argv[2]);
 
   unsigned int i;
   for(i=0;i<strlen(argv[1]);++i)
@@ -47,6 +51,9 @@ int main(int argc, char **argv)
   const char * z = ReceivedPaiload;
   int separator_count = 0;
   for (m=0; z[m]; m++) { if(z[m] == ':') { separator_count ++; } }
+
+  // printf("stringa originale = %s\n",ReceivedPaiload);
+  // printf(" separatori = %d\n",separator_count);
 
   if (separator_count == 5 || separator_count ==6) {
     int data_type = 0;
@@ -67,10 +74,11 @@ int main(int argc, char **argv)
     sprintf(query, "DELETE from last_rec_data where serial = '%s'", serial);
     mysql_query(&mysql_conn,query);
 
-    sprintf(query, "INSERT INTO last_rec_data (data_type,serial,counter,data,battery,period) VALUES (%04d,'%s',%04d,%.2f,%.3f,%04d)", data_type, serial, counter, data, battery,period);
+    sprintf(query, "INSERT INTO last_rec_data (data_type,serial,counter,data,battery,period,router) VALUES (%04d,'%s',%04d,%.2f,%.3f,%04d,'%s')", data_type, serial, counter, data, battery,period,router)
+;
     mysql_query(&mysql_conn,query);
 
-    sprintf(query, "INSERT INTO rec_data (data_type,serial,counter,data,battery,period) VALUES (%04d,'%s',%04d,%.2f,%.3f,%04d)", data_type, serial, counter, data, battery,period);
+    sprintf(query, "INSERT INTO rec_data (data_type,serial,counter,data,battery,period,router) VALUES (%04d,'%s',%04d,%.2f,%.3f,%04d,'%s')", data_type, serial, counter, data, battery,period,router);
     mysql_query(&mysql_conn,query);
 
     // *** Get useful data from DB
@@ -112,7 +120,8 @@ int main(int argc, char **argv)
           // printf("email n. %d = %s\n\r", i, email[i]);
           // printf("send mail \n\r");
           char mail_command[256];
-          sprintf(mail_command,"echo \"Allarme da sensore di temperatura %s %s; temperatura rilevata = %.2f - out of range (min = %d - max %d)\"|mail -r root@slartitorto.eu -s \"Allarme %s %s\" %s",device_name,position,data,min_ok,max_ok,device_name,position,email[i]);
+          sprintf(mail_command,"echo \"Allarme da sensore di temperatura %s %s; temperatura rilevata = %.2f - out of range (min = %d - max %d)\"|mail -r root@slartitorto.eu -s \"Allarme %s %s\" %s",devi
+ce_name,position,data,min_ok,max_ok,device_name,position,email[i]);
           system(mail_command);
         }
         sprintf(query, "update devices set alarmed = 1 where serial = '%s'", serial);
