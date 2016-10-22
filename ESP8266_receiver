@@ -1,6 +1,4 @@
 // Rev 0.3
-// Aggiunto router name
-
 
  // * nRF24L01+  ESP8266
  // * VCC        VCC
@@ -42,6 +40,11 @@ void setup() {
 
   //Local intialization. Once its business is done, there is no need to keep it around
   WiFiManager wifiManager;
+  IPAddress ip(10,0,0,1);
+  IPAddress gw(10,0,0,1);
+  IPAddress sn(255,255,255,0);
+  wifiManager.setAPStaticIPConfig(ip, gw, sn);
+
   // prepare function to perform before configuration: put RED_LED on
   wifiManager.setAPCallback(configModeCallback);
   //fetches ssid and pass from eeprom and tries to connect
@@ -61,6 +64,16 @@ void setup() {
 // main program
 
 void loop() {
+
+  if ( digitalRead(BUTTON) == LOW ) {
+
+    led_blink();
+    delay(2000);
+    WiFiManager wifiManager;
+    WiFi.disconnect();
+    wifiManager.resetSettings();
+    ESP.restart();
+  }
 
   delay(20);
   if (radio.available()) {
@@ -130,6 +143,19 @@ void restartRadio(){
   radio.openReadingPipe(1,0xF0F0F0F0E1LL);
   radio.stopListening();
   radio.startListening();
+}
+
+// --------------------------------
+
+void led_blink(){
+  int m;
+  for (m=0; m<20; m++)
+  {
+    digitalWrite(LED,HIGH);
+    delay(100);
+    digitalWrite(LED,LOW);
+    delay(100);
+  }
 }
 
 // --------------------------------
