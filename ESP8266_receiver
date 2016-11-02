@@ -1,15 +1,15 @@
-// Rev 0.3
+// Rev 0.2b
 
- // * nRF24L01+  ESP8266
- // * VCC        VCC
- // * CE         GPIO4
- // * CSN/CS     GPIO15
- // * SCK        GPIO14
- // * MISO       GPIO12
- // * MOSI       GPIO13
- // * GND        GND
+// * nRF24L01+  ESP8266
+// * VCC        VCC
+// * CE         GPIO4
+// * CSN/CS     GPIO15
+// * SCK        GPIO14
+// * MISO       GPIO12
+// * MOSI       GPIO13
+// * GND        GND
 
- // usare NODE MCU (ESP-12E) come tipo di arduino
+// usare NODE MCU (ESP-12E) come tipo di arduino
 
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
 #include <DNSServer.h>
@@ -38,13 +38,18 @@ void setup() {
   pinMode(LED, OUTPUT);
   pinMode(BUTTON, INPUT_PULLUP);
 
+  // Reset WiFi Settings on startup if BUTTON presssed
+  if (digitalRead(BUTTON) == LOW) {
+    led_blink();
+    delay(2000);
+    WiFiManager wifiManager;
+    WiFi.disconnect();
+    wifiManager.resetSettings();
+    ESP.restart();
+  }
+
   //Local intialization. Once its business is done, there is no need to keep it around
   WiFiManager wifiManager;
-  IPAddress ip(10,0,0,1);
-  IPAddress gw(10,0,0,1);
-  IPAddress sn(255,255,255,0);
-  wifiManager.setAPStaticIPConfig(ip, gw, sn);
-
   // prepare function to perform before configuration: put RED_LED on
   wifiManager.setAPCallback(configModeCallback);
   //fetches ssid and pass from eeprom and tries to connect
@@ -64,16 +69,6 @@ void setup() {
 // main program
 
 void loop() {
-
-  if ( digitalRead(BUTTON) == LOW ) {
-
-    led_blink();
-    delay(2000);
-    WiFiManager wifiManager;
-    WiFi.disconnect();
-    wifiManager.resetSettings();
-    ESP.restart();
-  }
 
   delay(20);
   if (radio.available()) {
@@ -98,7 +93,8 @@ void loop() {
         digitalWrite(LED, HIGH);
 
         char receivePayload_crypted[32]="";
-        char key[33] = "53495038570398570398570358703800";
+        char key[33] = "34545463456346345634563456346346";
+
         unsigned int i;
         for(i=0;i<strlen(receivePayload);++i)
         {
