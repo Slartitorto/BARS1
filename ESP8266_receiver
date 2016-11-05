@@ -1,4 +1,9 @@
-// Rev 0.2b
+// Rev 0.2c
+// rispetto al 2.b (che funziona) cambio metodo:
+// l'AP con captive portal solo on demand
+// all'accensione prova a connettersi e se non si connette lampeggia e riprova
+// finchè non si connette oppure finchè non si preme il tasto e solo allora va
+// in APmode.
 
 // * nRF24L01+  ESP8266
 // * VCC        VCC
@@ -32,37 +37,22 @@ const int http_port = 80;
 RF24 radio(4,15);
 
 // --------------------------------
-// setup ruotine, run once
+// setup routine, run once
 void setup() {
-  Serial.begin(115200);
+
   pinMode(LED, OUTPUT);
   pinMode(BUTTON, INPUT_PULLUP);
 
-  // Reset WiFi Settings on startup if BUTTON presssed
-  if (digitalRead(BUTTON) == LOW) {
+  WiFi.begin();
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
     led_blink();
-    delay(2000);
-    WiFiManager wifiManager;
-    WiFi.disconnect();
-    wifiManager.resetSettings();
-    ESP.restart();
+    if (digitalRead(BUTTON) == LOW) {
+      captive_portal();
+    }
   }
-
-  //Local intialization. Once its business is done, there is no need to keep it around
-  WiFiManager wifiManager;
-  // prepare function to perform before configuration: put RED_LED on
-  wifiManager.setAPCallback(configModeCallback);
-  //fetches ssid and pass from eeprom and tries to connect
-  //if it does not connect it starts an access point
-  //and goes into a blocking loop awaiting configuration
-  wifiManager.autoConnect("BARS_AccessPoint");
-  // put RED_LED off after configuration
-  digitalWrite(LED, LOW);
-
-  yield();
-  restartRadio();                    // turn on and configure radio
-
-  // end of setup
+  restartRadio();
 }
 
 // --------------------------------
@@ -70,7 +60,10 @@ void setup() {
 
 void loop() {
 
-  delay(20);
+  if (digitalRead(BUTTON) == LOW) {
+    captive_portal();
+  }
+
   if (radio.available()) {
     while (radio.available()) {
       yield();
@@ -145,7 +138,7 @@ void restartRadio(){
 
 void led_blink(){
   int m;
-  for (m=0; m<20; m++)
+  for (m=0; m<10; m++)
   {
     digitalWrite(LED,HIGH);
     delay(100);
@@ -169,9 +162,15 @@ void blink_error(){
 
 // --------------------------------
 
-// Turn LED on if WiFiManager goes in Captive Portal Mode
-void configModeCallback (WiFiManager *myWiFiManager) {
+void captive_portal() {
+  delay(1000);
   digitalWrite(LED, HIGH);
+
+  WiFiManager wifiManager;
+  wifiManager.resetSettings();
+  wifiManager.startConfigPortal("BARS_AccessPoint");
+  digitalWrite(LED, LOW);
+  ESP.restart();
 }
 
 // --------------------------------
