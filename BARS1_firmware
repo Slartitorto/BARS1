@@ -14,7 +14,7 @@
 #define tempPower 2    // sensor Power pin is connected to D2 (ATtiny pin 5)
 #define ECP 1          // EEPROM register where store info for pause between trasmission
 
-RF24 radio(PA3,PA7);                   // attiny84: pins for nrf24l01 CSN,CE
+RF24 radio(PA3,PA7);                   // attiny84: pins for nrf24l01 CE,CSN
 OneWire oneWire(tempPin);              // startup oneWire library
 DallasTemperature sensors(&oneWire);   // startup Dallas library
 
