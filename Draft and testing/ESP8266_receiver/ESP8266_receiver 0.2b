@@ -1,9 +1,24 @@
-// Funziona, anche con nrf24l01
-// solo il captive portal on demand (startConfigPortal function)
-// non salva le nuove credenziali e l'ESP si aggancia sul vecchio SSID
-// gestirebbe il captivo portal on demand tramite interrupt
-// e accende il led rosso quando si trova in configurazione
-// si connette al server remoto e fa get ogni 3 secondi
+// Rev 0.2b
+// risolto bug: la definizione di char receivePayload[32]="" sta nel loop
+// altrimenti la memoria rimaneva sporcata
+// aggiunto router name
+// Funziona tutto
+
+// sto provando l'AP mode on demand
+// Se il check sta in loop, ogni tanto si blocca in va in APmode
+// adeso proviamo in setup
+
+
+// * nRF24L01+  ESP8266
+// * VCC        VCC
+// * CE         GPIO4
+// * CSN/CS     GPIO15
+// * SCK        GPIO14
+// * MISO       GPIO12
+// * MOSI       GPIO13
+// * GND        GND
+
+// usare NODE MCU (ESP-12E) come tipo di arduino
 
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
 #include <DNSServer.h>
@@ -15,62 +30,53 @@
 #define LED 5
 #define BUTTON 16
 
+// router name
+const char router[] = "000003";
+
 // Remote site information
 const char http_site[] = "bars.slartitorto.eu";
 const int http_port = 80;
-char receivePayload[32]="";
 
 // Initialize RF24 library
 RF24 radio(4,15);
 
 // --------------------------------
+// setup routine, run once
 void setup() {
   Serial.begin(115200);
   pinMode(LED, OUTPUT);
   pinMode(BUTTON, INPUT_PULLUP);
+
+  // Reset WiFi Settings on startup if BUTTON presssed
+  if (digitalRead(BUTTON) == LOW) {
+    led_blink();
+    delay(2000);
+    WiFiManager wifiManager;
+    WiFi.disconnect();
+    wifiManager.resetSettings();
+    ESP.restart();
+  }
+
   //Local intialization. Once its business is done, there is no need to keep it around
   WiFiManager wifiManager;
-
   // prepare function to perform before configuration: put RED_LED on
   wifiManager.setAPCallback(configModeCallback);
-
   //fetches ssid and pass from eeprom and tries to connect
   //if it does not connect it starts an access point
   //and goes into a blocking loop awaiting configuration
   wifiManager.autoConnect("BARS_AccessPoint");
-
   // put RED_LED off after configuration
   digitalWrite(LED, LOW);
+
   yield();
   restartRadio();                    // turn on and configure radio
-
 
   // end of setup
 }
 
-void restartRadio(){
-  yield();
-  radio.begin();
-  radio.enableDynamicPayloads();
-  radio.setAutoAck(1);
-  radio.setRetries(15,15);
-  radio.setDataRate(RF24_250KBPS);
-  radio.setPALevel(RF24_PA_MAX);
-  radio.setChannel(76);
-  radio.setCRCLength(RF24_CRC_16);
-  radio.openReadingPipe(1,0xF0F0F0F0E1LL);
-  radio.stopListening();
-  radio.startListening();
-
-}
-
 // --------------------------------
-// Turn LED on if WiFiManager goes in Captive Portal Mode
-void configModeCallback (WiFiManager *myWiFiManager) {
-  digitalWrite(LED, HIGH);
-}
+// main program
 
-// --------------------------------
 void loop() {
 
   delay(20);
@@ -78,6 +84,7 @@ void loop() {
     while (radio.available()) {
       yield();
       uint8_t len = radio.getDynamicPayloadSize();
+      char receivePayload[32]="";
       radio.read(receivePayload, len);
 
       // *** Separator ":" count
@@ -95,7 +102,8 @@ void loop() {
         digitalWrite(LED, HIGH);
 
         char receivePayload_crypted[32]="";
-        char key[33] = "73984143674635298574635272884776";
+        char key[33] = "34545463456346345634563456346346";
+
         unsigned int i;
         for(i=0;i<strlen(receivePayload);++i)
         {
@@ -105,9 +113,13 @@ void loop() {
         // Send data to sink
 
         WiFiClient client;
-        if ( client.connect(http_site, http_port) ) {
+        if (!client.connect(http_site, http_port) ) {
+          blink_error();
+        } else {
           client.print("GET /datasink.php?data=");
           client.print(receivePayload_crypted);
+          client.print("&router=");
+          client.print(router);
 
           client.println(" HTTP/1.1");
           client.print("Host: ");
@@ -120,3 +132,55 @@ void loop() {
     }
   }
 }
+
+// --------------------------------
+
+void restartRadio(){
+  yield();
+  radio.begin();
+  radio.enableDynamicPayloads();
+  radio.setAutoAck(1);
+  radio.setRetries(15,15);
+  radio.setDataRate(RF24_250KBPS);
+  radio.setPALevel(RF24_PA_MAX);
+  radio.setChannel(76);
+  radio.setCRCLength(RF24_CRC_16);
+  radio.openReadingPipe(1,0xF0F0F0F0E1LL);
+  radio.stopListening();
+  radio.startListening();
+}
+
+// --------------------------------
+
+void led_blink(){
+  int m;
+  for (m=0; m<20; m++)
+  {
+    digitalWrite(LED,HIGH);
+    delay(100);
+    digitalWrite(LED,LOW);
+    delay(100);
+  }
+}
+
+// --------------------------------
+
+void blink_error(){
+  int m;
+  for (m=0; m<200; m++)
+  {
+    digitalWrite(LED,HIGH);
+    delay(200);
+    digitalWrite(LED,LOW);
+    delay(200);
+  }
+}
+
+// --------------------------------
+
+// Turn LED on if WiFiManager goes in Captive Portal Mode
+void configModeCallback (WiFiManager *myWiFiManager) {
+  digitalWrite(LED, HIGH);
+}
+
+// --------------------------------
