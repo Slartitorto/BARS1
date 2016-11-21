@@ -44,7 +44,8 @@ CREATE TABLE `devices` (
   `min_ok` float DEFAULT NULL,
   `max_ok` float DEFAULT NULL,
   `batt_type` varchar(16) DEFAULT NULL,
-  `tenant` int(11) DEFAULT NULL
+  `tenant` int(11) DEFAULT NULL,
+  `code_period` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

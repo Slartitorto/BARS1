@@ -1,5 +1,12 @@
-// Rev 0.2c
-// rispetto al 2.b (che funziona) cambio metodo: AP con captive portal solo on demand
+// Rev 0.3
+
+// ---  rispetto al 0.2c
+
+// versione senza pulsante: se riceve un count = 0000 fa una get per ottenere
+// il period di quel serial e lo ritrasmette al sensore che sta in attesa 10 sec.
+// Attenzione: deve cambiare il firmware, il DB, device_settings e get_period
+
+// ---  rispetto al 0.2b (che funziona) cambio metodo: AP con captive portal solo on demand
 
 // all'accensione prova a connettersi e se non si connette lampeggia e riprova
 // finchè non si connette oppure finchè non si preme il tasto e solo allora va
@@ -85,6 +92,7 @@ void loop() {
 
       // *** Separator ":" count
       const char * z = receivePayload;
+      char period;
       int separator_count = 0;
       int m;
       for (m=0; z[m]; m++)
@@ -98,7 +106,21 @@ void loop() {
         digitalWrite(LED, HIGH);
 
         char receivePayload_crypted[32]="";
-        char key[33] = "34545463456346345634563456346346";
+        char key[33] = "34535353535353453453453535353454";
+
+        char serial[5] ="";
+        char count[5]="";
+        serial[0] = receivePayload[2];
+        serial[1] = receivePayload[3];
+        serial[2] = receivePayload[4];
+        serial[3] = receivePayload[5];
+        serial[4] = 0;
+
+        count[0] = receivePayload[7];
+        count[1] = receivePayload[8];
+        count[2] = receivePayload[9];
+        count[3] = receivePayload[10];
+        count[4] = 0;
 
         unsigned int i;
         for(i=0;i<strlen(receivePayload);++i)
@@ -122,6 +144,59 @@ void loop() {
           client.println(http_site);
           client.println("Connection: close");
           client.println();
+        }
+
+        // if count = 0000 get period and retrasmit it to that sensor
+        // callback sintax is nnnn:c (n=nodeID;c=code_period)
+        if (atoi(count) == 0) {
+
+          client.connect(http_site, http_port);
+          client.print("GET /get_period.php?serial=");
+          client.print(serial);
+          client.println(" HTTP/1.1");
+          client.print("Host: ");
+          client.println(http_site);
+          client.println("Connection: close");
+          client.println();
+
+          unsigned long timeout = millis();
+          while (client.available() == 0) {
+            if (millis() - timeout > 5000) {
+              Serial.println(">>> Client Timeout !");
+              client.stop();
+              return;
+            }
+          }
+          // Read all the lines of the reply from server and print them to Serial
+          while(client.available()) {
+            String line = client.readStringUntil('\r');
+            period = line.charAt(1);
+          }
+          client.connect(http_site, http_port);
+          client.print("GET /get_period.php?received=");
+          client.print(period);
+          client.println(" HTTP/1.1");
+          client.print("Host: ");
+          client.println(http_site);
+          client.println("Connection: close");
+          client.println();
+
+          // Prepare outbuffer
+          char outBuffer[7]= "";
+          outBuffer[0]=serial[0];
+          outBuffer[1]=serial[1];
+          outBuffer[2]=serial[2];
+          outBuffer[3]=serial[3];
+          outBuffer[4]=':';
+          outBuffer[5]=period;
+          outBuffer[6]=0;
+
+          restartRadio();
+          radio.stopListening();
+          radio.openWritingPipe(0xF00F0F0E1LL);
+          delay(5);
+          radio.write(outBuffer, strlen(outBuffer));
+          radio.startListening();
         }
         digitalWrite(LED, LOW);
       }
