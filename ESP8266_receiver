@@ -193,7 +193,7 @@ void loop() {
 
           restartRadio();
           radio.stopListening();
-          radio.openWritingPipe(0xF00F0F0E1LL);
+          radio.openWritingPipe(0xF00FF0F0E1LL);
           delay(5);
           radio.write(outBuffer, strlen(outBuffer));
           radio.startListening();
