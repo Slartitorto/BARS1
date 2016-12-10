@@ -1,0 +1,56 @@
+*Pick And Place List
+*Company=
+*Author=
+*eMail=
+*
+*Project=BARS1_1.66
+*Date=22:51:35
+*CreatedBy=Fritzing 0.9.3b.04.19.5c895d327c44a3114e5fcc9d8260daf0cbb52806
+*
+*
+*Coordinates in mm, always center of component
+*Origin 0/0=Lower left corner of PCB
+*Rotation in degree (0-360, math. pos.)
+*
+*No;Value;Package;X;Y;Rotation;Side;Name
+1;;;19.7654;-21.0568;0;Bottom;DS2
+2;;;3.42105;-15.8818;0;Bottom;Via56
+3;3.3k;1206 [SMD];6.87111;-4.28179;180;Top;R1
+4;;;3.42105;-11.6818;0;Bottom;Via53
+5;;;3.42105;-13.8818;0;Bottom;Via55
+6;4.7k;1206 [SMD];8.47102;-1.88177;0;Bottom;R10
+7;;led-1206;13.9211;-1.88191;180;Bottom;WH
+8;;led-1206;19.8035;-2.02669;180;Bottom;RED
+9;;;34.0209;-4.08174;0;Bottom;Via49
+10;;led-1206;25.9785;-2.02669;180;Bottom;GRE
+11;;1206;32.021;-17.4818;0;Top;C8
+12;;sot23-5;9.52585;-9.96177;-90;Top;U1
+13;;;23.8212;-15.0818;0;Bottom;Via66
+14;;;3.42105;-17.8818;0;Bottom;Via57
+15;10µF;100 mil [THT, electrolytic];31.9509;-20.0818;0;Bottom;C3
+16;;1206;23.821;-11.8818;-90;Bottom;C7
+17;4.7k;1206 [SMD];31.5009;-2.02684;0;Bottom;R12
+18;150mA;sot23-5;19.521;-16.0318;90;Top;U2
+19;;;2.25368;-2.02664;0;Bottom;Via48
+20;;;16.2209;-14.0818;0;Bottom;Via62
+21;;;26.0659;-6.47179;0;Bottom;Via37
+22;;;12.0212;-4.28183;0;Bottom;Via61
+23;;;3.42105;-20.0818;0;Bottom;Via54
+24;4.7k;1206 [SMD];10.5459;-11.8693;0;Bottom;R13
+25;;;26.0092;-12.8812;0;Bottom;Via67
+26;;1206;15.421;-16.8818;-90;Bottom;C5
+27;4.7µF;100 mil [THT, electrolytic];8.15114;-20.0818;0;Bottom;C1
+28;;SO;19.5636;-9.01178;90;Top;ATtiny84
+29;;;0.983446;-6.47179;0;Bottom;Via50
+30;;;14.021;-8.68179;0;Bottom;Via41
+31;4.7k;1206 [SMD];19.971;-17.6818;180;Bottom;R11
+32;;usb-microb;3.04269;-5.20177;90;Bottom;X1
+33;;THT;28.9235;-11.2343;0;Bottom;J1
+34;;;22.821;-1.08172;0;Bottom;Via63
+35;470;1206 [SMD];6.02104;-12.3318;90;Top;R14
+36;10µF;100 mil [THT, electrolytic];26.151;-20.0818;0;Bottom;C2
+37;;THT;32.0985;-11.2343;0;Bottom;J2
+38;;;2.25368;-8.37679;0;Bottom;Via47
+39;;THT;12.621;-19.6118;180;Bottom;+  -
+40;;;8.82104;-14.0818;0;Bottom;Via42
+41;;;19.0211;-10.0818;0;Bottom;Via43
