@@ -1,0 +1,50 @@
+*Pick And Place List
+*Company=
+*Author=
+*eMail=
+*
+*Project=BARS1_esp8266_1.1
+*Date=15:06:32
+*CreatedBy=Fritzing 0.9.3b.04.19.5c895d327c44a3114e5fcc9d8260daf0cbb52806
+*
+*
+*Coordinates in mm, always center of component
+*Origin 0/0=Lower left corner of PCB
+*Rotation in degree (0-360, math. pos.)
+*
+*No;Value;Package;X;Y;Rotation;Side;Name
+1;1k;1206 [SMD];28.34;-38.1265;90;Top;R5
+2;;;28.3398;-33.9615;0;Bottom;Via20
+3;;;14.3698;-14.5941;0;Bottom;Via16
+4;;usb-mb-h;3.60741;-37.1365;0;Bottom;X2
+5;1.25 – 36 V;sot223;21.1263;-34.194;0;Top;U2
+6;;;37.5473;-32.6915;0;Bottom;Via8
+7;;;41.6748;-10.4666;0;Bottom;Via19
+8;10k;1206 [SMD];20.0475;-20.309;0;Top;R3
+9;;5 mm [THT];24.8475;-43.5425;0;Bottom;LED1 RED
+10;;;25.1648;-26.024;0;Bottom;Via23
+11;;;35.6423;-15.5466;0;Bottom;Via17
+12;10k;1206 [SMD];20.0475;-23.1665;0;Top;R9
+13;;;5.62821;-33.5311;0;Bottom;Via25
+14;;;2.3049;-27.294;0;Bottom;Hole1
+15;;tactile-switch-1101ne;9.92497;-44.414;90;Bottom;S3
+16;;;47.3898;-15.8641;0;Bottom;Via21
+17;;;39.4523;-31.104;0;Bottom;Via7
+18;10k;1206 [SMD];20.0475;-14.594;0;Top;R4
+19;;cpol-radial-100uf-25v;13.0998;-34.914;-90;Bottom;C11
+20;;cpol-radial-100uf-25v;12.1473;-25.7065;-90;Bottom;C10
+21;10k;1206 [SMD];26.715;-15.5465;0;Top;R10
+22;;THT;34.8169;-40.3115;0;Bottom;J1
+23;;;25.2354;-12.8654;0;Bottom;Via22
+24;10k;1206 [SMD];43.225;-32.6915;0;Top;R8
+25;;THT;20.0849;-10.784;90;Bottom;J3
+26;;THT;2.62241;-13.959;0;Bottom;GND-CTS-VCC-TX-RX-DTR
+27;;5 mm [THT];14.0525;-43.5425;0;Bottom;LED2 GRE
+28;10k;1206 [SMD];20.0475;-17.4515;0;Top;R2
+29;;1206;47.7075;-34.0915;-90;Top;C5
+30;;;5.58588;-40.7983;0;Bottom;Via24
+31;;;42.9823;-20.6907;90;Top;U3
+32;;;30.2448;-23.1665;0;Bottom;Via18
+33;1k;1206 [SMD];19.7675;-43.7665;-90;Top;R7
+34;;1206;19.9549;-26.024;180;Top;C6
+35;;1206;43.0748;-37.1365;0;Top;C7
