@@ -56,7 +56,7 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
   $(function () {
     Highcharts.setOptions({
       global: {
-        timezoneOffset: -120
+        useUTC: false
       }
     });
     $('#container1').highcharts({
