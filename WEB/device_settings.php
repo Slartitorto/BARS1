@@ -48,8 +48,7 @@ if(isset($_POST['serial']))
   else
   { $armed=1; }
 
-  if ((preg_match("/^[a-zA-Z0-9_ ]+$/", $device_name)) and (preg_match("/^[a-zA-Z0-9_ ]+$/", $position)) and (preg_match("/^-?[0-9]{1,3}+$/", $min_ok)) and (preg_match("/^-?[0-9]{1,3}+$/",
-  $max_ok)))
+  if ((preg_match("/^[a-zA-Z0-9_ ]+$/", $device_name)) and (preg_match("/^[a-zA-Z0-9_ ]+$/", $position)) and (preg_match("/^-?[0-9]{1,3}+$/", $min_ok)) and (preg_match("/^-?[0-9]{1,3}+$/", $max_ok)))
   {
     $sql = "UPDATE devices set device_name='$device_name', position='$position', code_period='$code_period', min_ok='$min_ok', max_ok='$max_ok', armed='$armed' where serial='$serial'";
     $result = $conn->query($sql);
@@ -139,14 +138,31 @@ if ($result->num_rows > 0) {
     echo "<option value= \"9\"";
     if ($code_period[$x] == 9) { echo " selected";}
     echo "> 60 min. </option>\n";
+    echo "</select>";
 
-    echo "<TD><input type=\"text\" class=\"stileCampiInput\" name=\"min_ok\" value=\"" . $min_ok[$x] . "\" size=3 onchange=\"this.form.submit()\"></TD>\n";
-    echo "<TD><input type=\"text\" class=\"stileCampiInput\" name=\"max_ok\" value=\"" . $max_ok[$x] . "\" size=3 onchange=\"this.form.submit()\"></TD>\n";
+
+    echo "<TD><select class=\"stileCampiInput\" name=\"min_ok\" onchange=\"this.form.submit()\">\n";
+    for ($i = -40; $i <= 80; $i++) {
+      echo "<option value= \"$i\"";
+      if ($min_ok[$x] == $i) { echo " selected";}
+      echo ">$i °C</option>\n";
+
+    }
+    echo "</select>";
+
+    echo "<TD><select class=\"stileCampiInput\" name=\"max_ok\" onchange=\"this.form.submit()\">\n";
+    for ($i = -40; $i <= 80; $i++) {
+      echo "<option value= \"$i\"";
+      if ($max_ok[$x] == $i) { echo " selected";}
+      echo ">$i °C</option>\n";
+
+    }
+    echo "</select>";
+
 
     if ($armed[$x] == 1)
     {
       echo "<TD><input name=\"armed\" type=checkbox value=\"1\" checked=\"checked\" onchange=\"this.form.submit()\"></TD>\n";
-      // echo "<TD><input name=\"armed\" value = \"" . $armed[$x] . "\" size=2 onchange=\"this.form.submit()\"></TD>\n";
     }
     else
     {
