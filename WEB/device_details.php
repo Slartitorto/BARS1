@@ -14,30 +14,48 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
 
   $serial=($_GET["serial"]);
   $last=($_GET["last"]);
+  $graph=$_GET['graph'];
+
   if ( $last == 2)
-  { $next_last = 7; $string_last = "ultima settimana"; }
+  { $next_last = 7; $string_last = "ultima settimana"; $current = "ultime 48 ore"; }
   else if ( $last == 7)
-  { $next_last = 30; $string_last = "ultimo mese"; }
+  { $next_last = 30; $string_last = "ultimo mese";  $current = "ultima settimana";}
+  else { $current = "ultimo mese";}
 
   // SELECT for data to graph
-  $query = "SELECT min_ok, max_ok FROM devices where serial = '$serial'";
-  $result = $conn->query($query);
-  while($row = $result->fetch_assoc()) {
-    $min_ok=$row["min_ok"];
-    $max_ok=$row["max_ok"];
+
+  if ($graph == temp) {
+    $query = "SELECT min_ok, max_ok FROM devices where serial = '$serial'";
+    $result = $conn->query($query);
+    while($row = $result->fetch_assoc()) {
+      $min_ok=$row["min_ok"];
+      $max_ok=$row["max_ok"];
+    }
+
+    $sql = "SELECT unix_timestamp(timestamp) as timestamp, data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
+    $result = $conn->query($sql);
+    while ($row = $result->fetch_array()) {
+      $timestamp = $row['timestamp'];
+      $timestamp *=1000;
+      $data = $row['data'];
+
+      $data1[] = "[$timestamp, $data]";
+      $data2[] = "[$timestamp, $min_ok]";
+      $data3[] = "[$timestamp, $max_ok]";
+    }
+  } else {
+    $sql = "SELECT unix_timestamp(timestamp) as timestamp, battery FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
+    $result = $conn->query($sql);
+    while ($row = $result->fetch_array()) {
+      $timestamp = $row['timestamp'];
+      $timestamp *=1000;
+      $battery = $row['battery'];
+
+      $data4[] = "[$timestamp, $battery]";
+    }
+
   }
 
-  $sql = "SELECT unix_timestamp(timestamp) as timestamp, data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
-  $result = $conn->query($sql);
-  while ($row = $result->fetch_array()) {
-    $timestamp = $row['timestamp'];
-    $timestamp *=1000;
-    $data = $row['data'];
-
-    $data1[] = "[$timestamp, $data]";
-    $data2[] = "[$timestamp, $min_ok]";
-    $data3[] = "[$timestamp, $max_ok]";
-  }
 
 
   print  "<head><title>Sensor details</title>
@@ -79,21 +97,27 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
       },
       series: [{
         data: [";
-        echo join($data1, ',') ;
-        print			"]
-      },{
-        color:'#ff0000',
-        enableMouseTracking: false,
-        data: [";
-        echo join($data2, ',') ;
+        if ($graph == temp) {
+          echo join($data1, ',') ;
+          print			"]
+        },{
+          color:'#ff0000',
+          enableMouseTracking: false,
+          data: [";
+          echo join($data2, ',') ;
+          print                   "]
+        },{
+          color:'#ff0000',
+          enableMouseTracking: false,
+          data: [";
+          echo join($data3, ',') ;
+
+        } else {
+
+          echo join($data4, ',') ;
+        }
         print                   "]
-      },{
-        color:'#ff0000',
-        enableMouseTracking: false,
-        data: [";
-        echo join($data3, ',') ;
-        print                   "]
-      },]
+      } ]
     });
   });
   </script>
@@ -116,9 +140,11 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
   $result = $conn->query($sql);
   if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
+
       $device_name = $row["device_name"];
       $position = $row["position"];
       $batt_type = $row["batt_type"];
+
     }
   }
 
@@ -127,6 +153,7 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
   $result = $conn->query($sql);
   if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
+
       $time_stamp = $row["timestamp"];
       $temp = $row["data"];
       $batt = $row["battery"];
@@ -134,6 +161,7 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
       $min_period = format_time($period);
       $sec_delay=$row["sec_delay"];
       $min_delay=format_time($sec_delay);
+
     }
     if ($batt_type == "nimh") {
       $perc_batt = intval((($batt - 2.9)*77));
@@ -158,15 +186,24 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
 
     echo " <table class=\"gridtable\">	";
     echo " <tr><th>" . $device_name . "</th><th>" . $position . "</th><th>Temp: " . $temp . "&deg C</th></tr>";
-    echo " <TR><TD>Serial: <B> " . $serial . "</B></TD><TD></TD><TD>Batteria:  <B>" . $batt . "</B> (" . $perc_batt . "%) - " . $batt_type . "</TD></TR>";
+    if ($graph == temp ){
+      echo " <TR><TD>Serial: <B> " . $serial . "</B></TD><TD></TD><TD><A HREF=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$last&graph=battery');\">Batteria:</a>  <B>" . $batt . "</B> (" . $perc_batt . "%) - " . $batt_type . "</TD></TR>";
+    } else {
+      echo " <TR><TD>Serial: <B> " . $serial . "</B></TD><TD></TD><TD>Batteria: <B>" . $batt . "</B> (" . $perc_batt . "%) - " . $batt_type . "</TD></TR>";
+    }
     echo " <TR><TD colspan=2>Periodo di rilevazione (min.)<B>" . $min_period . "</B><TD>Ultimo aggiornamento: <B>" . $min_delay . "</B></TD></TR>";
     echo " <TR><TD colspan=3>Link quality: " . $link_qlt . "%</TD></TR>";
+    echo "</table><br><br><br>";
+    echo "<center>" . $current . "</center>";
 
     print "
-    </table><br><br><br>
     <div id=\"container1\" style=\"width:100%; height:400px;\"></div>
     ";
-    echo "<A href=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$next_last');\">" . $string_last . "</a>";
+    if ($graph == temp) {
+      echo "<A href=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$next_last&graph=temp');\">" . $string_last . "</a>";
+    } else {
+      echo "<A href=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$next_last&graph=battery');\">" . $string_last . "</a>";
+    }
   } else {
     echo "0 results";
   }
