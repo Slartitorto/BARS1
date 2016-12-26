@@ -1,4 +1,8 @@
-// Rev 0.3a
+// Rev 0.3b
+
+// --- rispetto al 0.3a
+// contiene l'invio ogni minuto di un keep_alive; il keep alive avviene anche quando
+// manda il dato (se ne occupa datasink.php)
 
 // ---  rispetto al 0.3
 
@@ -62,6 +66,8 @@ const int http_port = 80;
 // global variables
 char key[33];
 char router_name[7];
+
+unsigned long keep_alive_timeout = millis();
 
 // Initialize RF24 library
 RF24 radio(5,15);
@@ -185,6 +191,19 @@ void setup() {
 // main program
 
 void loop() {
+
+  if (millis() - keep_alive_timeout > 60000) {
+    keep_alive_timeout = millis();
+    WiFiClient client;
+    client.connect(http_site, http_port);
+    client.print("GET /keep_alive_datasink.php?router=");
+    client.print(router_name);
+    client.println(" HTTP/1.1");
+    client.print("Host: ");
+    client.println(http_site);
+    client.println("Connection: close");
+    client.println();
+  }
 
   if (digitalRead(BUTTON) == LOW) {
     captive_portal();
