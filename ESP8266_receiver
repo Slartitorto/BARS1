@@ -1,4 +1,10 @@
-// Rev 0.3
+// Rev 0.3a
+
+// ---  rispetto al 0.3
+
+// Alla prima accensione registra in Eprom il router name e la key, entrambi presi dal
+// server su db; in questo modo non ho da personalizzare il codice per ogni installazione
+// necessita della tabella new_routers popolata
 
 // ---  rispetto al 0.2c
 
@@ -12,16 +18,19 @@
 // finchè non si connette oppure finchè non si preme il tasto e solo allora va
 // in APmode.
 // Anche nel ciclo loop() se premi il tasto va in APmode con captive portal.
-// Attenzione che quando premi il tasto, resetta la eprom e cancella le vecchie
-// credenziali; quindi se lo spegni mentre sta in APmode, quando lo
+// Attenzione che quando premi il tasto, resetta le credenziali in eprom; quindi
+// se lo spegni mentre sta in APmode, quando lo
 // riaccendi non riuscirà a connettersi e lampeggia veloce all'infinito finchè
 // non premi il tasto.
 // Se sbagli le credenziali, non esce dalla modalità AP finchè non le metti
 // giuste; nel frattempo il led resta acceso.
 
+
+// ------ README -------
 // led lampeggiante veloce -> sta provando a connettersi alla rete
 // led fisso -> sta in APmode con captive portal attivo
 // led lampeggiante lento -> errore nella connessione http verso il server (80 sec., poi riprova)
+// lampo led -> ricezione dei dati ed invio al server
 
 // * nRF24L01+  ESP8266
 // * VCC        VCC
@@ -41,19 +50,22 @@
 #include <WiFiManager.h>
 #include <WiFiClient.h>
 #include <RF24.h>
+#include <EEPROM.h>
 
-#define LED 5
+#define LED 4
 #define BUTTON 16
-
-// router name
-const char router[] = "000003";
 
 // Remote site information
 const char http_site[] = "bars.slartitorto.eu";
 const int http_port = 80;
 
+// global variables
+char key[33];
+char router_name[7];
+
 // Initialize RF24 library
-RF24 radio(4,15);
+RF24 radio(5,15);
+
 
 // --------------------------------
 // setup routine, run once
@@ -71,9 +83,104 @@ void setup() {
       captive_portal();
     }
   }
+
+  WiFiClient client;
+
+  EEPROM.begin(64);
+  int test1 = EEPROM.read(50);
+  int test2 = EEPROM.read(51);
+  int test3 = EEPROM.read(52);
+  int test4 = EEPROM.read(53);
+
+  // test numeri chiave presi a caso per eeprom vergine si/no
+  if (test1 != 12 || test2 != 137 || test3 != 219 || test4 != 95) {
+
+    // --- case eeprom not forged
+    client.connect(http_site, http_port);
+    client.print("GET /get_new_router.php");
+    client.println(" HTTP/1.1");
+    client.print("Host: ");
+    client.println(http_site);
+    client.println("Connection: close");
+    client.println();
+
+    // timeout
+    unsigned long timeout = millis();
+    while (client.available() == 0) {
+      if (millis() - timeout > 5000) {
+        client.stop();
+        return;
+      }
+    }
+
+    // Read the line of the reply from server and put it in the int array
+    int router_name_and_key[40];
+    while(client.available()) {
+      String line = client.readStringUntil('\r');
+      for (int i=1;i<40;i++){
+        router_name_and_key[i]=line.charAt(i);
+      }
+    }
+
+    // eeprom clearing
+    for (int i = 1; i < 40; i++) {
+      EEPROM.write(i,0);
+    }
+    EEPROM.commit();
+
+    // eeprom write router_name ":" key
+    for (int i = 1; i < 40; i++) {
+      EEPROM.write(i,router_name_and_key[i]);
+    }
+    EEPROM.commit();
+
+    // mark eeprom as forged
+    EEPROM.write(50,0);
+    EEPROM.write(51,0);
+    EEPROM.write(52,0);
+    EEPROM.write(53,0);
+    EEPROM.commit();
+
+    EEPROM.write(50,12);
+    EEPROM.write(51,137);
+    EEPROM.write(52,219);
+    EEPROM.write(53,95);
+    EEPROM.commit();
+  }
+
+  // eeprom read router_name
+  for (int i = 1; i < 7; i++) {
+    router_name[i-1] = EEPROM.read(i);
+  }
+  router_name[6]=0;
+  // eeprom read key
+  for (int i = 8; i < 40; i++) {
+    key[i-8] = EEPROM.read(i);
+  }
+  key[33]=0;
+
+
+  // TEST: send router_name & key to server - to be removed
+  client.connect(http_site, http_port);
+  client.print("GET /datasink.php?router_name=");
+  for (int i = 0; i < 6; i++) {
+    client.print(char(router_name[i]));
+  }
+  client.print("&key=");
+  for (int i = 0; i < 39; i++) {
+    client.print(char(key[i]));
+  }
+  client.println(" HTTP/1.1");
+  client.print("Host: ");
+  client.println(http_site);
+  client.println("Connection: close");
+  client.println();
+  // END test: removed until here
+
   restartRadio();
 }
 
+// end setup
 // --------------------------------
 // main program
 
@@ -106,8 +213,6 @@ void loop() {
         digitalWrite(LED, HIGH);
 
         char receivePayload_crypted[32]="";
-        char key[33] = "34535353535353453453453535353454";
-
         char serial[5] ="";
         char count[5]="";
         serial[0] = receivePayload[2];
@@ -129,7 +234,6 @@ void loop() {
         }
 
         // Send data to sink
-
         WiFiClient client;
         if (!client.connect(http_site, http_port) ) {
           blink_error();
@@ -137,7 +241,7 @@ void loop() {
           client.print("GET /datasink.php?data=");
           client.print(receivePayload_crypted);
           client.print("&router=");
-          client.print(router);
+          client.print(router_name);
 
           client.println(" HTTP/1.1");
           client.print("Host: ");
@@ -149,7 +253,6 @@ void loop() {
         // if count = 0000 get period and retrasmit it to that sensor
         // callback sintax is nnnn:c (n=nodeID;c=code_period)
         if (atoi(count) == 0) {
-
           client.connect(http_site, http_port);
           client.print("GET /get_period.php?serial=");
           client.print(serial);
@@ -162,12 +265,12 @@ void loop() {
           unsigned long timeout = millis();
           while (client.available() == 0) {
             if (millis() - timeout > 5000) {
-              Serial.println(">>> Client Timeout !");
               client.stop();
               return;
             }
           }
-          // Read all the lines of the reply from server and print them to Serial
+
+          // Read all the lines of the reply from server
           while(client.available()) {
             String line = client.readStringUntil('\r');
             period = line.charAt(1);
