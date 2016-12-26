@@ -78,7 +78,7 @@ else { $COD_UTENTE =	0; header("Location: index.php");}
         echo "<TR>";
         echo "<TD><A HREF=\"javascript:navigator_Go('device_details.php?serial=";
         echo  $serial[$i] . "&last=2&graph=temp');\">" . $device_name[$i]. "</A></TD><TD>" . $position[$i] . "</TD>";
-        echo "<TD>" . $last_data[$i] . "</TD>";
+        echo "<TD>" . round($last_data[$i],1) . "</TD>";
         echo "<TD><img src=\"icone/" . $warn[$i] . "_signal.png\" width=\"25\"></TD>";
         echo "</TR>\n";
       }
