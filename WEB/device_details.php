@@ -127,7 +127,7 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
   <TD align=\"left\" width=\"90%\">
   <A href=\"javascript:navigator_Go('index.php');\"><img src=\"icone/left37.png\" width=\"35\"></A></TD>
   <TD align=\"right\">
-  <A href=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$last');\"><img src=\"icone/refresh57.png\" width=\"30\">
+  <A href=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$last&graph=temp');\"><img src=\"icone/refresh57.png\" width=\"30\">
   </TD>
   </TR></TABLE>
   <BR><CENTER>
