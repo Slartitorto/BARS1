@@ -2,18 +2,15 @@
 <?php
 include "db_connection.php";
 
-// $data = "IEKKPCFWKSOLHHNHLIOMRIHFON";
-// $router = "000004";
-
 if(isset($_GET['data'])){
-$data=$_GET['data'];
-$router=$_GET['router'];
+  $data=$_GET['data'];
+  $router=$_GET['router'];
 } else exit();
 
 $result = mysqli_query($conn,"select current_key from router where router = ".$router);
 $row = mysqli_fetch_array($result);
 $key = $row[0];
- echo $key . "\n";
+echo $key . "\n";
 $strarr = str_split($data);
 $keyarr = str_split($key);
 $len = strlen($data);
@@ -82,7 +79,7 @@ if (($data < $min_ok) or ($data > $max_ok)) {
     $subject = "Allarme $device_name $position";
     $message = "Temperatura rilevata = $data - out of range (min = $min_ok - max = $max_ok)";
     $headers = "From: root@slartitorto.eu \r\n" .
-        "Reply-To: root@slartitorto.eu \r\n";
+    "Reply-To: root@slartitorto.eu \r\n";
 
     $query = "select email from utenti where t0 = '$tenant' or t1 = '$tenant' or t2 = '$tenant' or t3 = '$tenant'";
     //echo $query . "\n";
@@ -90,7 +87,22 @@ if (($data < $min_ok) or ($data > $max_ok)) {
     while (($row = mysqli_fetch_row($result))) {
       $to = $row[0];
       mail($to, $subject, $message, $headers);
-      //echo $to . "\n";
+
+      // CURL pushbullett (see https://wiki.onion.io/Tutorials/PHP-PushBullet-Example)
+      $authToken = "YOUR_PUSHBULLETT_TOKEN";
+      $curl = curl_init('https://api.pushbullet.com/v2/pushes');
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($curl, CURLOPT_POST, true);
+      curl_setopt($curl, CURLOPT_HTTPHEADER, ["Authorization: Bearer $authToken"]);
+      curl_setopt($curl, CURLOPT_POSTFIELDS, [
+        "type" => "note",
+        "email" => "$to",
+        "title" => "Allarme $device_name $position",
+        "body" => "Temperatura rilevata = $data - out of range (min = $min_ok - max = $max_ok)"]
+      );
+      curl_exec($curl);
+      curl_close($curl);
+
     }
   }
 } else {
