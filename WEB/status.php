@@ -10,6 +10,7 @@ else { $COD_UTENTE =	0; header("Location: index.php");}
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="apple-touch-icon" href="/icone/temp_icon.png">
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <link rel="icon" href="/icone/temp_icon.png">
   <SCRIPT type="text/javascript">
   function navigator_Go(url) { window.location.assign(url);}
   </SCRIPT>
