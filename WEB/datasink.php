@@ -108,7 +108,7 @@ if (($data < $min_ok) or ($data > $max_ok)) {
 } else {
   // If previously alarmed, reset alarm flag
   if ($alarmed == 1) {
-    $query = "update devices set alarmed = 0 where serial = $serial";
+    $query = "update devices set alarmed = 0 where serial = '$serial'";
     $result = mysqli_query($conn,$query);
   }
 }
