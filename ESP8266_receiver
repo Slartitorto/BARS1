@@ -377,7 +377,7 @@ void captive_portal() {
 
   WiFiManager wifiManager;
   wifiManager.resetSettings();
-  wifiManager.startConfigPortal("BARS_AccessPoint");
+  wifiManager.startConfigPortal("Hooly-router");
   digitalWrite(LED, LOW);
   ESP.restart();
 }
