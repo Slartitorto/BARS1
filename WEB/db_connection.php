@@ -14,6 +14,6 @@ if ($conn->connect_error) {
         exit();
 }
 
-define("NOMESITO", "Home Sensors");
+define("NOMESITO", "Hooly");
 define("URLSITO", "http://bars.slartitorto.eu");
 ?>
