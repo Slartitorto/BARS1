@@ -347,12 +347,12 @@ void restartRadio(){
 
 void led_blink(){
   int m;
-  for (m=0; m<10; m++)
+  for (m=0; m<6; m++)
   {
     digitalWrite(LED,HIGH);
-    delay(100);
+    delay(80);
     digitalWrite(LED,LOW);
-    delay(100);
+    delay(80);
   }
 }
 
@@ -360,12 +360,12 @@ void led_blink(){
 
 void blink_error(){
   int m;
-  for (m=0; m<200; m++)
+  for (m=0; m<60; m++)
   {
     digitalWrite(LED,HIGH);
-    delay(200);
+    delay(250);
     digitalWrite(LED,LOW);
-    delay(200);
+    delay(250);
   }
 }
 
