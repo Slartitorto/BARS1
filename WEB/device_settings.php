@@ -183,3 +183,11 @@ if ($result->num_rows > 0) {
 
 $conn->close();
 ?>
+<br><br>
+<form action="add_sensor.php" method="post">
+Serial: <input type="text" name="serial" maxlength="4" size="4">
+Pin: <input type="text" name="pin" maxlength="4" size="4">
+<input type="hidden" name="idUtente" value="<?php echo $idUtente; ?>">
+<input type="hidden" name="tenant" value="<?php echo $tenant0; ?>">
+<input type="submit" value="Aggiungi un sensore">
+</form>
