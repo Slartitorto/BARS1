@@ -8,8 +8,8 @@
 
 #define DATABASE_SERVER "localhost"
 #define DATABASE_NAME "sensors"
-#define DATABASE_USERNAME "matteo"
-#define DATABASE_PASSWORD "matteo"
+#define DATABASE_USERNAME "DATABASE_USERNAME"
+#define DATABASE_PASSWORD "DATABASE_PASSWORD"
 
 int main(void)
 {
@@ -28,7 +28,7 @@ int main(void)
 
   while(1) {
 
-    sprintf(query, "SELECT router, timestamp from keep_alive_check where alarmed = 0 and timestamp < now() - interval 90 second");
+    sprintf(query, "SELECT router, timestamp from keep_alive_check where alarmed = 0 and timestamp < now() - interval 150 second");
     // printf("query =%s\n",query);
     mysql_query(mysql_conn,query);
     MYSQL_RES *result = mysql_store_result(mysql_conn);
@@ -59,7 +59,7 @@ int main(void)
         // printf("email: %s \n",email[x]);
 
         // send email
-        sprintf(mail_command,"echo \"Allarme da router %s; non ricevo dati da 90 sec.\"|mail -r root@slartitorto.eu -s \"Allarme di collegamento router %s\" %s",router[i],router[i],email[x]);
+        sprintf(mail_command,"echo \"Allarme da router %s; non ricevo dati da 2 min.\"|mail -r root@slartitorto.eu -s \"Allarme di collegamento router %s\" %s",router[i],router[i],email[x]);
         printf("send mail as: %s \n\r",mail_command);
         system(mail_command);
 
