@@ -65,7 +65,7 @@ else { $COD_UTENTE =	0; header("Location: index.php");}
             $link_qlt0[$i]=$row["counter"];
           }
 
-          if (($batt_type[$i] == "litio" and $battery[$i] < 3.2) or ($batt_type[$i] == "nimh" and $battery[$i] < 3.2)) {
+          if (($batt_type[$i] == "litio" and $battery[$i] < 3.5) or ($batt_type[$i] == "nimh" and $battery[$i] < 3.2)) {
             $warn[$i] = "battery_low";
           }
           else if ($sec_delay[$i] > 5 * $period[$i]) {
@@ -89,4 +89,3 @@ else { $COD_UTENTE =	0; header("Location: index.php");}
 
         $conn->close();
         ?>
-        
