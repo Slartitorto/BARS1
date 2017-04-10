@@ -167,7 +167,7 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
       $perc_batt = intval((($batt - 2.9)*77));
     }
     else if ($batt_type == "litio") {
-      $perc_batt = intval((($batt - 2.7)*200));
+      $perc_batt = intval((($batt - 3.5)*143));
     }
 
     // SELECT last counter
