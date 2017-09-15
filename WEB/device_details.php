@@ -3,13 +3,10 @@ include "db_connection.php";
 if(isset($_COOKIE['LOGIN'])) { $COD_UTENTE = $_COOKIE['LOGIN']; }
 else { $COD_UTENTE =	0; header("Location: index.php"); }
 ?>
-
+<!DOCTYPE html>
+<html lang="en-US">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title><?php echo NOMESITO; ?></title>
-</head>
-<body>
-
   <?php
 
   $serial=($_GET["serial"]);
@@ -32,8 +29,10 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
       $max_ok=$row["max_ok"];
     }
 
-    $sql = "SELECT unix_timestamp(timestamp) as timestamp, data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
-    $result = $conn->query($sql);
+    $sqla = "SELECT unix_timestamp(timestamp) as timestamp, data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
+    $sql_csv = "SELECT timestamp, data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
+
+    $result = $conn->query($sqla);
     while ($row = $result->fetch_array()) {
       $timestamp = $row['timestamp'];
       $timestamp *=1000;
@@ -44,8 +43,9 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
       $data3[] = "[$timestamp, $max_ok]";
     }
   } else {
-    $sql = "SELECT unix_timestamp(timestamp) as timestamp, battery FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
-    $result = $conn->query($sql);
+    $sqla = "SELECT unix_timestamp(timestamp) as timestamp, battery FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
+    $sql_csv = "SELECT timestamp, battery FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
+    $result = $conn->query($sqla);
     while ($row = $result->fetch_array()) {
       $timestamp = $row['timestamp'];
       $timestamp *=1000;
@@ -56,9 +56,7 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
 
   }
 
-
-
-  print  "<head><title>Sensor details</title>
+  print  "<title>Sensor details</title>
   <meta name=\"apple-mobile-web-app-capable\" content=\"yes\">
   <link rel=\"apple-touch-icon\" href=\"/icone/app_icon128.png\">
   <link href=\"stile.css\" rel=\"stylesheet\" type=\"text/css\" />
@@ -97,7 +95,7 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
       },
       series: [{
         data: [";
-        if ($graph == temp) {
+        if ($graph == temp){
           echo join($data1, ',') ;
           print			"]
         },{
@@ -111,7 +109,6 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
           enableMouseTracking: false,
           data: [";
           echo join($data3, ',') ;
-
         } else {
 
           echo join($data4, ',') ;
@@ -121,6 +118,8 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
     });
   });
   </script>
+  </head>
+  <body>
 
   <BR>
   <TABLE width=\"100%\"><TR>
@@ -167,7 +166,8 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
       $perc_batt = intval((($batt - 2.9)*77));
     }
     else if ($batt_type == "litio") {
-      $perc_batt = intval((($batt - 3.5)*143));
+      // $perc_batt = intval((($batt - 2.7)*200));
+      $perc_batt = intval((($batt - 3.5)*143)); //   100/0.7
     }
 
     // SELECT last counter
@@ -193,20 +193,62 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
     }
     echo " <TR><TD colspan=2>Periodo di rilevazione (min.)<B>" . $min_period . "</B><TD>Ultimo aggiornamento: <B>" . $min_delay . "</B></TD></TR>";
     echo " <TR><TD colspan=3>Link quality: " . $link_qlt . "%</TD></TR>";
-    echo "</table><br><br><br>";
-    echo "<center>" . $current . "</center>";
-
-    print "
-    <div id=\"container1\" style=\"width:100%; height:400px;\"></div>
-    ";
+    echo "</table><br><br>";
+    echo "<table width=100%>";
+    echo "<tr>";
+    echo "<td width=33%></td>";
+    echo "<td width=34% align=center>" . $current . "</td>";
+    echo "<td width=33% align=right>";
     if ($graph == temp) {
       echo "<A href=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$next_last&graph=temp');\">" . $string_last . "</a>";
     } else {
       echo "<A href=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$next_last&graph=battery');\">" . $string_last . "</a>";
+
     }
+    echo "</td>";
+    echo "</tr>";
+    echo "</table>";
+
+    print "<div id=\"container1\" style=\"width:100%; height:400px;\"></div>";
+    ?>
+
+    <script>
+    var data = [
+      <?php
+      // https://code-maven.com/create-and-download-csv-with-javascript
+      $result = $conn->query($sql_csv);
+      while ($row = $result->fetch_array()) {
+        echo "['" . $row[0] . "','" . $row[1] . "'],";
+      }
+      ?>
+    ];
+
+    function download_csv() {
+      var csv = 'Timestamp,Data\n';
+      data.forEach(function(row) {
+        csv += row.join(',');
+        csv += "\n";
+      });
+
+      console.log(csv);
+      var hiddenElement = document.createElement('a');
+      hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+      hiddenElement.target = '_blank';
+      hiddenElement.download = 'data.csv';
+      hiddenElement.click();
+    }
+    </script>
+
+    <button onclick="download_csv()">Download CSV</button>
+    <?php
+
+
+
   } else {
     echo "0 results";
   }
 
   $conn->close();
   ?>
+  </body>
+  </html>
