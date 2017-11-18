@@ -30,7 +30,7 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
     }
 
     $sqla = "SELECT unix_timestamp(timestamp) as timestamp, data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
-    $sql_csv = "SELECT timestamp, data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
+    $sql_csv = "SELECT timestamp, counter,  data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
 
     $result = $conn->query($sqla);
     while ($row = $result->fetch_array()) {
@@ -219,13 +219,13 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
 
       $result = $conn->query($sql_csv);
       while ($row = $result->fetch_array()) {
-        echo "['" . $row[0] . "','" . $row[1] . "'],";
+        echo "['" . $row[0] . "','" . $row[1] . "','" . $row[2] . "'],";
       }
       ?>
     ];
 
     function download_csv() {
-      var csv = 'Timestamp,Data\n';
+      var csv = 'Timestamp,Count,Data\n';
       data.forEach(function(row) {
         csv += row.join(',');
         csv += "\n";
@@ -239,7 +239,7 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
       hiddenElement.click();
     }
     </script>
-
+    
     <button onclick="download_csv()">Download CSV</button>
     <?php
 
@@ -251,5 +251,5 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
 
   $conn->close();
   ?>
-  </body>
-  </html>
+</body>
+</html>
