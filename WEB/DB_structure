@@ -27,6 +27,7 @@ CREATE TABLE `devices` (
   `device_name` varchar(64) DEFAULT NULL,
   `position` varchar(32) DEFAULT NULL,
   `armed` tinyint(1) DEFAULT NULL,
+  `batt_alarmed` tinyint(1) DEFAULT NULL,
   `alarmed` tinyint(1) DEFAULT NULL,
   `min_ok` float DEFAULT NULL,
   `max_ok` float DEFAULT NULL,
@@ -45,7 +46,8 @@ DROP TABLE IF EXISTS `keep_alive_check`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `keep_alive_check` (
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `router` varchar(16) DEFAULT NULL
+  `router` varchar(16) DEFAULT NULL,
+  `alarmed` int(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -65,6 +67,19 @@ CREATE TABLE `last_rec_data` (
   `battery` float DEFAULT NULL,
   `period` int(11) DEFAULT NULL,
   `router` varchar(16) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `new_devices`
+--
+
+DROP TABLE IF EXISTS `new_devices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `new_devices` (
+  `serial` varchar(4) DEFAULT NULL,
+  `pin` varchar(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -133,7 +148,7 @@ CREATE TABLE `utenti` (
   `t2` int(11) DEFAULT NULL,
   `t3` int(11) DEFAULT NULL,
   PRIMARY KEY (`idUtente`)
-) ENGINE=MyISAM AUTO_INCREMENT=35 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=39 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

@@ -39,18 +39,19 @@ $query = "INSERT INTO rec_data (data_type,serial,counter,data,battery,period,rou
 //echo $query  . "\n";
 $result = mysqli_query($conn,$query);
 
-$query = "SELECT armed, alarmed, min_ok, max_ok, device_name, position, tenant from devices where serial = '$serial'";
+$query = "SELECT armed, batt_alarmed, alarmed, min_ok, max_ok, device_name, position, tenant from devices where serial = '$serial'";
 // echo $query . "\n";
 $result = mysqli_query($conn,$query);
 $row = mysqli_fetch_array($result);
 
 $armed = $row[0];
-$alarmed = $row[1];
-$min_ok = intval($row[2]);
-$max_ok = intval($row[3]);
-$device_name = $row[4];
-$position = $row[5];
-$tenant = $row[6];
+$batt_alarmed = $row[1];
+$alarmed = $row[2];
+$min_ok = intval($row[3]);
+$max_ok = intval($row[4]);
+$device_name = $row[5];
+$position = $row[6];
+$tenant = $row[7];
 
 /*
 echo "data_type = $data_type \n";
