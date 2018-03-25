@@ -30,7 +30,7 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
     }
 
     $sqla = "SELECT unix_timestamp(timestamp) as timestamp, data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
-    $sql_csv = "SELECT timestamp, counter,  data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
+    $sql_csv = "SELECT timestamp, data FROM rec_data where serial = '$serial' and timestamp > now()- interval '$last'  day order by timestamp";
 
     $result = $conn->query($sqla);
     while ($row = $result->fetch_array()) {
@@ -185,14 +185,14 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
     $link_qlt = intval(1000/($link_qlt0 - $link_qlt1));
 
     echo " <table class=\"gridtable\">	";
-    echo " <tr><th>" . $device_name . "</th><th>" . $position . "</th></tr><tr> <th colspan = 2>Temp: " . $temp . "&deg C</th></tr>";
+    echo " <tr><th>" . $device_name . "</th><th>" . $position . "</th><th>Temp: " . $temp . "&deg C</th></tr>";
     if ($graph == temp ){
-      echo " <TR><TD>Serial: <B> " . $serial . "</B></TD><TD><A HREF=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$last&graph=battery');\">Batteria:</a>  <B>" . $batt . "</B> (" . $perc_batt . "%) - " . $batt_type . "</TD></TR>";
+      echo " <TR><TD>Serial: <B> " . $serial . "</B></TD><TD></TD><TD><A HREF=\"javascript:navigator_Go('device_details.php?serial=$serial&last=$last&graph=battery');\">Batteria:</a>  <B>" . $batt . "</B> (" . $perc_batt . "%) - " . $batt_type . "</TD></TR>";
     } else {
-      echo " <TR><TD>Serial: <B> " . $serial . "</B></TD><TD>Batteria: <B>" . $batt . "</B> (" . $perc_batt . "%) - " . $batt_type . "</TD></TR>";
+      echo " <TR><TD>Serial: <B> " . $serial . "</B></TD><TD></TD><TD>Batteria: <B>" . $batt . "</B> (" . $perc_batt . "%) - " . $batt_type . "</TD></TR>";
     }
-    echo " <TR><TD>Periodo di rilevazione (min.)<B>" . $min_period . "</B><TD>Ultimo aggiornamento: <B>" . $min_delay . "</B></TD></TR>";
-    echo " <TR><TD colspan=2>Link quality: " . $link_qlt . "%</TD></TR>";
+    echo " <TR><TD colspan=2>Periodo di rilevazione (min.)<B>" . $min_period . "</B><TD>Ultimo aggiornamento: <B>" . $min_delay . "</B></TD></TR>";
+    echo " <TR><TD colspan=3>Link quality: " . $link_qlt . "%</TD></TR>";
     echo "</table><br><br>";
     echo "<table width=100%>";
     echo "<tr>";
@@ -216,16 +216,15 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
     var data = [
       <?php
       // https://code-maven.com/create-and-download-csv-with-javascript
-
       $result = $conn->query($sql_csv);
       while ($row = $result->fetch_array()) {
-        echo "['" . $row[0] . "','" . $row[1] . "','" . $row[2] . "'],";
+        echo "['" . $row[0] . "','" . $row[1] . "'],";
       }
       ?>
     ];
 
     function download_csv() {
-      var csv = 'Timestamp,Count,Data\n';
+      var csv = 'Timestamp,Data\n';
       data.forEach(function(row) {
         csv += row.join(',');
         csv += "\n";
@@ -239,7 +238,7 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
       hiddenElement.click();
     }
     </script>
-    
+
     <button onclick="download_csv()">Download CSV</button>
     <?php
 
@@ -251,5 +250,5 @@ else { $COD_UTENTE =	0; header("Location: index.php"); }
 
   $conn->close();
   ?>
-</body>
-</html>
+  </body>
+  </html>
