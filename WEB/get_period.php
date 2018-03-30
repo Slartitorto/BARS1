@@ -10,8 +10,8 @@ if(isset($_GET['serial']))
       while($row = $result->fetch_assoc()) {
         $code_period = $row["code_period"];
       }
-      echo $serial . ":" . $code_period ;
-//      echo $code_period ;
+//      echo $serial . ":" . $code_period ;
+      echo $code_period ;
 
    }
 ?>
