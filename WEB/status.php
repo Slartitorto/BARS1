@@ -17,14 +17,14 @@ else { $COD_UTENTE =	0; header("Location: index.php");}
 </head><body>
   <CENTER>
     <table width="300">
-        <TR>
+      <TR>
         <TD width="100" align="center"><A href="javascript:navigator_Go('device_settings.php');"><img src="icone/very-basic-settings-icon.png" width="40"></A></TD>
         <TD width="100" align="center"><A href="javascript:navigator_Go('home.php');"><img src="icone/home_button.png" width="35"></A></TD>
         <TD width="100" align="center"><A href="javascript:navigator_Go('index.php');"><img src="icone/refresh57.png" width="30"></A></TD>
-        </TR>
+      </TR>
     </table>
     <BR>
-    <table width="300" class="gridtable">
+      <table width="300" class="gridtable">
         <tr><th>Termometro</th><th>Posizione</th><th>Temp</th><th>Status</th></tr>
 
         <?php
@@ -89,3 +89,50 @@ else { $COD_UTENTE =	0; header("Location: index.php");}
 
         $conn->close();
         ?>
+        <hr>
+        <br>
+        <center>
+          <h3>
+            Genera report mensili
+          </h3>
+          <br>
+          <form action=hooly_report.php method=post>
+
+            <select name='ora'>
+              <option value="00">00:00</option>
+              <option value="02">02:00</option>
+              <option value="04">04:00</option>
+              <option value="06">06:00</option>
+              <option value="08" selected>08:00</option>
+              <option value="10">10:00</option>
+              <option value="12">12:00</option>
+              <option value="14">14:00</option>
+              <option value="16">16:00</option>
+              <option value="18">18:00</option>
+              <option value="20">20:00</option>
+              <option value="22">22:00</option>
+            </select>
+
+            <select name='mese'>
+              <option value="01">Gennaio</option>
+              <option value="02">Febbraio</option>
+              <option value="03">Marzo</option>
+              <option value="04">Aprile</option>
+              <option value="05">Maggio</option>
+              <option value="06">Giugno</option>
+              <option value="07">Luglio</option>
+              <option value="08">Agosto</option>
+              <option value="09">Settembre</option>
+              <option value="10">Ottobre</option>
+              <option value="11">Novembre</option>
+              <option value="12">Dicembre</option>
+            </select>
+
+            <select name='anno'>
+              <option value="2017">2017</option>
+              <option value="2018" selected>2018</option>
+              <option value="2019">2019</option>
+            </select>
+
+            <input type="submit" value="Report">
+          </form>
